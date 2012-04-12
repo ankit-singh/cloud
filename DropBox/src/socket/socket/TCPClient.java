@@ -43,7 +43,8 @@ public class TCPClient{
 				        DataOutputStream output = new DataOutputStream( s.getOutputStream()); 
 		  	  
 				        System.out.println("Client now sending to Server");
-		     
+				        
+				        
 				        //Step 1 send length
 				        System.out.println("Length"+ data.length());
 				        output.writeInt(data.length());

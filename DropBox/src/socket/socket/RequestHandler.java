@@ -50,7 +50,6 @@ public class RequestHandler extends Thread {
 				   //int j = data.length()/2;
 				   //while(data.length()/2 >0)
 					 //  data.length()
-				   
 				   if(packet[0].equals("Register"))
 				   {
 						SessionManager sessMgr = SessionManager.getInstance();
@@ -78,6 +77,27 @@ public class RequestHandler extends Thread {
 				
 						}
 						
+				   }else if(packet[0].equals("NEWUSER")){
+					   if(SessionManager.getInstance().userNameExists(packet[1])){
+						   //TODO User name already taken
+						   System.out.println("User name already exists");
+					   }else{
+						   	String uName = packet[1];
+						   	String pwd = packet[2];
+						   	SessionManager.getInstance().addUserDetails(uName, pwd);
+						   	System.out.println("New User Added ->UserName : "+uName);
+						   	System.out.println("New User Added ->Pasword : "+uName);
+						   	String s;
+						   	if(SessionManager.getInstance().getPotentialServer() != null){
+						   		 s ="serverip__"+SessionManager.getInstance().getPotentialServer();
+						   	}else{
+						   		s ="fail";
+						   	}
+						   	output.writeInt(s.length());
+						   	output.writeBytes(s);
+						   	
+					   }
+					   
 				   }
 //				   
 //				   if(packet[1].equals("Y"))

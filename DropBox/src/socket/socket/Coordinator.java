@@ -21,7 +21,7 @@ public class Coordinator {
 				ServerSocket listenSocket = new ServerSocket(ControllerPort); 
 				System.out.println("Co-ordinator is up and running @ IP: " + listenSocket.getInetAddress() + " / Port:" +listenSocket.getLocalPort() +"    ........");
 		  
-			
+				System.out.println("Coordinator IP"+InetAddress.getLocalHost().getHostAddress());
 				while(true) { 
 					System.out.println("Accepting new Servers\n");
 					Socket newServerConn = listenSocket.accept(); 
