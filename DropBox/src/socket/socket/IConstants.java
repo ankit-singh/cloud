@@ -11,5 +11,9 @@ public class IConstants {
 	
 	public static final String DELIMITER = "__";
 	
+	public static final String COORD_IP ="";
+	
+	public static final int COOR_PORT=5555;
+	
 	
 }

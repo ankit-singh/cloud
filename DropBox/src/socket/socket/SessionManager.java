@@ -74,7 +74,7 @@ public class SessionManager {
 		
 	}
 	public String getPotentialServer(){
-		Map.Entry<Long, String> mapEntry = serverMap.pollLastEntry();
+		Map.Entry<Long, String> mapEntry = serverMap.lastEntry();
 		if(mapEntry != null){
 		return mapEntry.getValue();
 		}else{

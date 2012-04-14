@@ -16,9 +16,8 @@ public class Coordinator {
 	  public static void main (String args[]) 
 	  { 
 		try{    
-				int ControllerPort = 5554; 
 				System.out.println("HEY");
-				ServerSocket listenSocket = new ServerSocket(ControllerPort); 
+				ServerSocket listenSocket = new ServerSocket(IConstants.COOR_PORT); 
 				System.out.println("Co-ordinator is up and running @ IP: " + listenSocket.getInetAddress() + " / Port:" +listenSocket.getLocalPort() +"    ........");
 		  
 				System.out.println("Coordinator IP"+InetAddress.getLocalHost().getHostAddress());

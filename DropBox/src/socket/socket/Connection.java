@@ -1,6 +1,5 @@
 package socket;
 
-
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -42,7 +41,7 @@ public class Connection extends Thread {
 				   
 				   String st = new String(digit);
 				   System.out.println(st);
-				   String delimiter ="__";
+				   String delimiter =IConstants.DELIMITER;
 				   String file [] = new String [100];
 				   file = st.split(delimiter);
 				//   System.out.println(file[0].length());

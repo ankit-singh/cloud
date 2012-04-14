@@ -1,21 +1,16 @@
 package socket;
 
-import java.net.*; 
-import java.util.Scanner;
-import java.io.*; 
-import java.net.Socket;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.Object;
-import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
 
 public class TCPServer {
 
-
+	
 	  public static void main (String args[]) throws IOException 
 	  { 
 		try{    Scanner scan = new Scanner(System.in);
@@ -23,26 +18,16 @@ public class TCPServer {
 				String serverPort = scan.next();
 				System.out.println("About to send packet Debug1");
 				
-				System.out.print("Co-ordinator @ IP?: ");//USE TO AUTOMATE
-				String IPAddress = scan.next();//USE TO AUTOMATE
-				System.out.println("Co-ordinator @ Port?: ");//USE TO AUTOMATE
-				String CPort = scan.next();//USE TO AUTOMATE
-//				String IPLocal = "127.0.0.1";//HARDCODED
-//				String CPort = "5554";//HARDCODED
-				System.out.println("About to send packet Debug2");
 		    	System.out.println("About to send packet Debug3");
 		    	
 		        File file = new File("C:");	
-//		    	long usableSpace = file.getUsableSpace(); //unallocated / free disk space in bytes.
-		    	//long FreeSpace = file.getFreeSpace(); 	//unallocated / free disk space in bytes.
 		    	String FreeSpace = String.valueOf(file.getFreeSpace());
 		    	System.out.println("About to send packet Debug4");
 		    	
-				Socket s = new Socket(IPAddress, Integer.parseInt(CPort));//USE TO AUTOMATE
-//				Socket s = new Socket(IPLocal,Integer.parseInt(CPort));//HARDCODED
+				Socket s = new Socket(IConstants.COORD_IP, IConstants.COOR_PORT);//USE TO AUTOMATE
 		        DataOutputStream output = new DataOutputStream( s.getOutputStream()); 
-		        String serverAddress = InetAddress.getLocalHost().getHostAddress();
-		        String packet = "Register__"+serverAddress+"rc__"+serverPort+"__"+FreeSpace;
+		        
+		        String packet = IConstants.NEW_SERVER+IConstants.DELIMITER+InetAddress.getLocalHost().getHostAddress().toString()+IConstants.DELIMITER+serverPort+IConstants.DELIMITER+FreeSpace;
 		        output.writeInt(packet.length());
 		        output.writeBytes(packet);
 		        System.out.println("Registration Packet Sent! Initiating server socket to listen");
@@ -61,7 +46,6 @@ public class TCPServer {
 		catch(IOException e) {
 			System.out.println("Listen :"+e.getMessage());} 
 	  }
-	  
 	}
 
 	

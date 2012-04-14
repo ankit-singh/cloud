@@ -1,10 +1,8 @@
 package socket;
 
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -40,9 +38,8 @@ public class RequestHandler extends Thread {
 				   
 				   System.out.println(st); // Printing Request
 				   
-				   String delimiter ="__";
 				   String packet [];
-				   packet = st.split(delimiter);
+				   packet = st.split(IConstants.DELIMITER);
 				   System.out.println(packet[0]);
 				//   System.out.println(file[0].length());
 				   System.out.println("Split happened");
@@ -57,12 +54,12 @@ public class RequestHandler extends Thread {
 						String Port = packet[2];
 						String sDet = packet[3];
 						System.out.println("Inside IF");
-						if(sessMgr.getServerMap(IP+"_"+Port)==null)
+						if(sessMgr.getServerMap(IP+IConstants.DELIMITER+Port)==null)
 						{
 							
-							sessMgr.setServerMap(IP+"_"+Port, sDet);
+							sessMgr.setServerMap(IP+IConstants.DELIMITER+Port, sDet);
 							System.out.println("/n Controller registered Server IP: " + IP +" @ Port: " +Port);
-							System.out.println("/nServer space available for write: " +sessMgr.getServerMap(IP+"_"+Port)+" bytes");
+							System.out.println("/nServer space available for write: " +sessMgr.getServerMap(IP+IConstants.DELIMITER+Port)+" bytes");
 						}
 						else
 						{
@@ -87,12 +84,14 @@ public class RequestHandler extends Thread {
 						   	SessionManager.getInstance().addUserDetails(uName, pwd);
 						   	System.out.println("New User Added ->UserName : "+uName);
 						   	System.out.println("New User Added ->Pasword : "+uName);
-						   	String s;
-						   	if(SessionManager.getInstance().getPotentialServer() != null){
-						   		 s ="serverip__"+SessionManager.getInstance().getPotentialServer();
+						   	String reply = SessionManager.getInstance().getPotentialServer();
+						   	String s = new String();
+						   	if(reply!= null){
+						   		 s ="serverip__"+reply;
 						   	}else{
 						   		s ="fail";
 						   	}
+						   	System.out.println("RequestHandler.run() Sending reply:"+s);
 						   	output.writeInt(s.length());
 						   	output.writeBytes(s);
 						   	
