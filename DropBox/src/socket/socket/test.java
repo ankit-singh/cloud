@@ -1,71 +1,94 @@
 package socket;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 
 
 public class test {
 
 	public static void main(String[] args) {
+		//		ClientHandler ch = new ClientHandler();
+		//		ch.createNewUser();
+		final String largeFile = "/users/ankitsingh/desktop/video.mp4"; // REPLACE
+		final int BUFFER_SIZE = 65536;
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					ServerSocket serverSocket = new ServerSocket(12345);
+					Socket clientSocket = serverSocket.accept();
+					long startTime = System.currentTimeMillis();
+					byte[] buffer = new byte[BUFFER_SIZE];
+					int read;
+					int totalRead = 0;
+					DataInputStream clientInputStream = new DataInputStream (clientSocket.getInputStream());
+					DataOutputStream clientOS = new DataOutputStream (clientSocket.getOutputStream());
+					int size = clientInputStream.readInt();
+					
+					byte[] digit = new byte[size];
 
-		HashMap<String,Long> map = new HashMap<String,Long>();
-		ValueComparator bvc =  new ValueComparator(map);
-		TreeMap<String,Long> sorted_map = new TreeMap(bvc);
-
-		map.put("A",(long) 99);
-		map.put("B",(long) 673);
-		map.put("C",(long) 677);
-		map.put("D",(long) 675);
-
-		System.out.println("unsorted map");
-		for (String key : map.keySet()) {
-			System.out.println("key/value: " + key + "/"+map.get(key));
-		}
-
-		sorted_map.putAll(map);
-		String result ="not found";
-		for (String key : sorted_map.keySet()) {
-			System.out.println("key/value: " + key + "/"+sorted_map.get(key));
-		}
-		Long bestDistanceFoundYet =Long.MAX_VALUE;
-		Long d = Long.valueOf(678);
-		// We iterate on the array...
-		for (String key : sorted_map.keySet()) {
-			// if we found the desired number, we return it.
-			if (sorted_map.get(key) == d) {
-				result = key;
-			} else if(d < sorted_map.get(key)){
-				// else, we consider the difference between the desired number and the current number in the array.
-				long diff = Math.abs(d - sorted_map.get(key));
-				if (diff < bestDistanceFoundYet) {
-					result = key;
-					bestDistanceFoundYet = diff;
+					for(int i = 0; i < size; i++)
+						digit[i] = clientInputStream.readByte(); 
+					String request = new String(digit);
+					File f = new File("/users/ankitsingh/desktop/drop/"+request.split("__")[1]);
+					
+					clientOS.writeInt(333);
+					FileOutputStream fileStream  = new FileOutputStream(f);
+					System.out
+							.println("test.main(...).new Runnable() {...}.run()");
+					while ((read = clientInputStream.read(buffer)) != -1) {
+						fileStream.write(buffer,0,read);
+						totalRead += read;
+					}
+					long endTime = System.currentTimeMillis();
+					System.out.println(totalRead + " bytes read in " + (endTime - startTime) + " ms.");
+				} catch (IOException e) {
 				}
 			}
-		}
-		System.out.println("test.main() Result :"+result);
+		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					Thread.sleep(1000);
+					Socket socket = new Socket("localhost", 12345);
+					File file = new File(largeFile);
+					FileInputStream fileInputStream = new FileInputStream(file);
+					DataOutputStream socketOutputStream = new DataOutputStream (socket.getOutputStream());
+					DataInputStream socketInputStream  = new DataInputStream ( socket.getInputStream());
+					long startTime = System.currentTimeMillis();
+					String re = "222__"+file.getName()+"__"+file.getTotalSpace();
+					socketOutputStream.writeInt(re.getBytes().length);
+					socketOutputStream.write(re.getBytes());
+					 int opcode = socketInputStream.readInt();
+					 if(opcode == 333){
+					byte[] buffer = new byte[BUFFER_SIZE];
+					int read;
+					int readTotal = 0;
+					while ((read = fileInputStream.read(buffer)) != -1) {
+						System.out
+								.println("Uploading");
+						socketOutputStream.write(buffer, 0, read);
+						readTotal += read;
+					}
+					socketOutputStream.close();
+					fileInputStream.close();
+					socket.close();
+					long endTime = System.currentTimeMillis();
+					System.out.println(readTotal + " bytes written in " + (endTime - startTime) + " ms.");
+					 }
+				} catch (Exception e) {
+				}
+			}
+		}).start();
 	}
-
-
 }
-class ValueComparator implements Comparator {
 
-	Map base;
-	public ValueComparator(Map base) {
-		this.base = base;
-	}
-
-	public int compare(Object a, Object b) {
-
-		if((Long)base.get(a) < (Long)base.get(b)) {
-			return 1;
-		} else if((Long)base.get(a) == (Long)base.get(b)) {
-			return 0;
-		} else {
-			return -1;
-		}
-	}
-}

@@ -23,7 +23,7 @@ public interface IConstants {
 	
 	public static final String DELIMITER = "__";
 	
-	public static final String COORD_IP ="192.168.2.4";
+	public static String COORD_IP ="128.84.213.188";
 	
 	public static final int COOR_PORT=5555;
 	

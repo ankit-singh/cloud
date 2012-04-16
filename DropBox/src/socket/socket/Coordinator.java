@@ -24,8 +24,8 @@ public class Coordinator {
 				while(true) { 
 					System.out.println("Accepting new Servers\n");
 					Socket newServerConn = listenSocket.accept(); 
-					System.out.println("Accepting new Servers\n");
-					new RequestHandler(newServerConn); 
+					System.out.println("got request");
+					new  RequestHandler(newServerConn); 
 				} 
 		} 
 		catch(IOException e) {

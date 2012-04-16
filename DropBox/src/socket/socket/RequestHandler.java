@@ -1,13 +1,11 @@
 package socket;
 
-import java.awt.color.CMMException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-
-import org.apache.commons.io.FileUtils;
 
 
 
@@ -48,7 +46,12 @@ public class RequestHandler extends Thread implements IConstants{
 				//for every file in fileList get the server address
 				response = String.valueOf(FILELIST);
 				for(FileDetails fd : fileList){
-					response+=DELIMITER+fd.getClientName()+DELIMITER+fd.getFileName();
+					try {
+						response+=DELIMITER+fd.getClientName()+DELIMITER+fd.getFileName()+CoordinatorManager.getInstance().getFileServerTable().getServerDetails(fd).toString();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 			}

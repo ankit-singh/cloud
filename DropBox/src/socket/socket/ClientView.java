@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 public class ClientView {
 	Scanner scan;
+	public ClientView(){
+		creatUI();
+	}
 	public  static void main(String args[]){
 		
 	}
