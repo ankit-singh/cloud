@@ -28,7 +28,7 @@ public class ConnectionHandler extends Thread {
 		try {
 			long startTime = System.currentTimeMillis();
 			byte[] buffer = new byte[BUFFER_SIZE];
-			File f = new File("/users/ankitsingh/desktop/drop/s1/"+request.split("__")[2]+"/"+request.split("__")[1]);
+			File f = new File("/users/ankitsingh/desktop/drop/s1/"+request.split("__")[2]+"_"+request.split("__")[1]);
 			respStream.writeInt(IConstants.OK);
 			FileOutputStream fileStream  = new FileOutputStream(f);
 			int read;
