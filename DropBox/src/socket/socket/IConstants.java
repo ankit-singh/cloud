@@ -29,7 +29,7 @@ public interface IConstants {
 	
 	public static final int COOR_PORT=5555;
 	
-	public static final long SERVER_SIZE = 10*1024*1024*1024;
+	public static final long SERVER_SIZE =Long.valueOf("10737418240");
 	
 	
 }

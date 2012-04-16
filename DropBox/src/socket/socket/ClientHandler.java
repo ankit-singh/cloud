@@ -78,9 +78,9 @@ public class ClientHandler implements IConstants{
 					File file =  fileList[j];
 					String fileName = file.getName();
 					Logger.Log("ClientHandler.upload() File Name :"+fileName);
-					Long fileSize = file.getTotalSpace();
+					Long fileSize = file.length();
 					Logger.Log("ClientHandler.sendUploadRequest() File Size : "+fileSize);
-					String request =UPLOAD+DELIMITER+fileName+DELIMITER+fileSize;
+					String request =UPLOAD+DELIMITER+client.getUserName()+DELIMITER+fileName+DELIMITER+fileSize;
 					String response = TCPConncetion.send(request, co);
 					if(isValidResponse(response)){
 						String[] arr = response.split(DELIMITER);
@@ -116,7 +116,7 @@ public class ClientHandler implements IConstants{
 				Enumeration<String> files = fileList.keys();
 				while(files.hasMoreElements()){
 					String file = files.nextElement();
-					FileUploader.pullFile(file, fileList.get(file));
+//					FileUploader.pullFile(file, fileList.get(file));
 				}
 			}
 		}

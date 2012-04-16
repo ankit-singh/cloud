@@ -22,7 +22,7 @@ public class FileUploader {
 			socketOutputStream.writeInt(request.getBytes().length);
 			socketOutputStream.write(request.getBytes());
 			int opcode = socketInputStream.readInt();
-			if(opcode == 333){
+			if(opcode == IConstants.OK){
 				byte[] buffer = new byte[BUFFER_SIZE];
 				int read;
 				int readTotal = 0;

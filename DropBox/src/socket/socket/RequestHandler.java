@@ -39,7 +39,7 @@ public class RequestHandler extends Thread implements IConstants{
 					String respString = null;
 					String request = new String(digit);
 					int opcode = Integer.parseInt(request.split(IConstants.DELIMITER)[0]);
-
+					Logger.Log("RequestHandler.run() Opcode :"+opcode);
 					if(opcode == IConstants.UPLOAD){
 						respString = handleUploadRequest(request);
 					}else if(opcode == IConstants.CREATE_NEW_USER){
@@ -139,7 +139,7 @@ public class RequestHandler extends Thread implements IConstants{
 				//Update the server size
 				//store in file server table
 				//TODO Version matching??
-				response = String.valueOf(SERVER)+potentialServer.toString();
+				response = String.valueOf(SERVER)+DELIMITER+potentialServer.toString();
 				Long newSize = serverTable.getServerSpace(potentialServer) - fileSize;
 				serverTable.addServer(potentialServer, newSize);
 				FileServerTable fsTable = CoordinatorManager.getInstance().getFileServerTable();

@@ -28,7 +28,7 @@ public class ConnectionHandler extends Thread {
 		try {
 			long startTime = System.currentTimeMillis();
 			byte[] buffer = new byte[BUFFER_SIZE];
-			File f = new File("/users/ankitsingh/desktop/drop/"+request.split("__")[2]+"/"+request.split("__")[1]);
+			File f = new File("/users/ankitsingh/desktop/drop/s1/"+request.split("__")[2]+"/"+request.split("__")[1]);
 			respStream.writeInt(IConstants.OK);
 			FileOutputStream fileStream  = new FileOutputStream(f);
 			int read;
@@ -38,6 +38,7 @@ public class ConnectionHandler extends Thread {
 				totalRead += read;
 			}
 			long endTime = System.currentTimeMillis();
+			fileStream.close();
 			System.out.println(totalRead + " bytes read in " + (endTime - startTime) + " ms.");
 		} catch (IOException e) {
 		}
@@ -68,6 +69,16 @@ public class ConnectionHandler extends Thread {
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		finally{
+			if(clientSocket != null){
+				try {
+					clientSocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

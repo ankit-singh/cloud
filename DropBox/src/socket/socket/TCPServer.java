@@ -15,7 +15,7 @@ public class TCPServer {
 	  { 
 		try{    Scanner scan = new Scanner(System.in);
 				System.out.print("Server to start on Port?: ");
-				String serverPort = scan.next();
+//				String serverPort = scan.next();
 				System.out.println("About to send packet Debug1");
 				
 		    	System.out.println("About to send packet Debug3");
@@ -27,12 +27,13 @@ public class TCPServer {
 				Socket s = new Socket(IConstants.COORD_IP, IConstants.COOR_PORT);//USE TO AUTOMATE
 		        DataOutputStream output = new DataOutputStream( s.getOutputStream()); 
 		        
-		        String packet = IConstants.NEW_SERVER+IConstants.DELIMITER+InetAddress.getLocalHost().getHostAddress().toString()+IConstants.DELIMITER+serverPort+IConstants.DELIMITER+FreeSpace;
+		        String packet = IConstants.NEW_SERVER+IConstants.DELIMITER+InetAddress.getLocalHost().getHostAddress().toString()+IConstants.DELIMITER+1234+IConstants.DELIMITER+FreeSpace;
+		        System.out.println("TCPServer.main() ->"+packet);
 		        output.writeInt(packet.length());
 		        output.writeBytes(packet);
 		        System.out.println("Registration Packet Sent! Initiating server socket to listen");
-								
-		        ServerSocket listenSocket = new ServerSocket(Integer.parseInt(serverPort));
+		        
+		        ServerSocket listenSocket = new ServerSocket(1234);
 				//DONE Please send server details to co-ordinator and code the co-ordinator to register your server and start accepting requests. 
 		  
 				System.out.println("Server start listening... ... ...");

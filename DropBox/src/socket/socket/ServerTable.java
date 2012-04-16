@@ -9,13 +9,28 @@ public class ServerTable {
 	HashMap<ServerDetails,Long> serverMap = new HashMap<ServerDetails,Long>();
 	SizeComparator bvc =  new SizeComparator(serverMap);
 	TreeMap<ServerDetails,Long> sorted_map = new TreeMap(bvc);
+	/**
+	 * @param server
+	 * @param size
+	 */
 	public void addServer(ServerDetails server,Long size){
+		Logger.Log("ServerTable.addServer() Server :"+server.toString());
+		Logger.Log("ServerTable.addServer() size :"+size);
 		serverMap.put(server, size);
 	}
+	/**
+	 * @param details
+	 * @return
+	 */
 	public Long getServerSpace(ServerDetails details){
 		return serverMap.get(details);
 	}
+	/**
+	 * @param fileSize
+	 * @return
+	 */
 	public ServerDetails getPotentialServer(Long fileSize){
+		Logger.Log("ServerTable.getPotentialServer() fileSize : "+fileSize);
 		ServerDetails result = null;
 		sorted_map.clear();
 		sorted_map.putAll(serverMap);
