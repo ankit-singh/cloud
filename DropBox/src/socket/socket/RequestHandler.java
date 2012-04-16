@@ -11,15 +11,15 @@ import java.util.ArrayList;
 
 public class RequestHandler extends Thread implements IConstants{
 
-	DataInputStream requestStream; 
-	DataOutputStream responseStream; 
+	DataInputStream reqStream; 
+	DataOutputStream respStream; 
 	Socket clientSocket; 
 	String clientName;
 	public RequestHandler (Socket aClientSocket) { 
 		try { 
 			clientSocket = aClientSocket; 
-			requestStream = new DataInputStream( clientSocket.getInputStream()); 
-			responseStream = new DataOutputStream( clientSocket.getOutputStream()); 
+			reqStream = new DataInputStream( clientSocket.getInputStream()); 
+			respStream = new DataOutputStream( clientSocket.getOutputStream()); 
 			this.start(); 
 		} 
 		catch(IOException e) {
@@ -28,8 +28,72 @@ public class RequestHandler extends Thread implements IConstants{
 	}
 	@Override
 	public void run() {
+		//Close the sockets
+				int size;
+				try {
+					size = reqStream.readInt();
+					byte[] digit = new byte[size];
+					for(int i = 0; i < size; i++){
+						digit[i] = reqStream.readByte();
+					}
+					String respString = null;
+					String request = new String(digit);
+					int opcode = Integer.parseInt(request.split(IConstants.DELIMITER)[0]);
 
+					if(opcode == IConstants.UPLOAD){
+						respString = handleUploadRequest(request);
+					}else if(opcode == IConstants.CREATE_NEW_USER){
+						respString = handleNewUserRequest(request);
+					}else if(opcode == IConstants.NEW_SERVER){
+						handleNewServer(request);
+					}else if(opcode == IConstants.AUTHENTICATE){
+						respString = handleAuthentication(request);
+					}else if(opcode == IConstants.DOWNLOAD){
+						respString = handleDownloadRequest(request);
+					}
+					if(respString != null){
+						respStream.writeInt(respString.getBytes().length);
+						respStream.write(respString.getBytes());
+					}
+				}
+				catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally{
+					if(clientSocket != null){
+						try {
+							clientSocket.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 
+	}
+	private String handleAuthentication(String request) {
+		String response = null;
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String uname = arr[1];
+			String pwd = arr[2];
+			CoordinatorManager cm = CoordinatorManager.getInstance();
+			if(cm.getPwd(uname) == null){
+				System.out.println("RequestHandler.handleAuthentication() User Not found");
+			}else{
+				if(cm.getPwd(uname).equals(pwd)){
+					
+					response = String.valueOf(IConstants.USER_AUTHENTICATED);
+				}else{
+					response = String.valueOf(IConstants.INVALID_PWD);
+				}
+			}
+		}catch (ArrayIndexOutOfBoundsException e) {
+			// TODO: handle exception
+			System.out.println("RequestHandler.handleAuthentication() Error Request"+request);
+		}
+				
+		return response;
 	}
 	private String handleDownloadRequest(String request){
 		String response = null;

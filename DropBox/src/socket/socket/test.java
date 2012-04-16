@@ -19,7 +19,7 @@ public class test {
 	public static void main(String[] args) {
 		//		ClientHandler ch = new ClientHandler();
 		//		ch.createNewUser();
-		final String largeFile = "/users/ankitsingh/desktop/video.mp4"; // REPLACE
+		final String largeFile = "/users/ankitsingh/desktop/sl.mp4"; // REPLACE
 		final int BUFFER_SIZE = 65536;
 		new Thread(new Runnable() {
 			public void run() {

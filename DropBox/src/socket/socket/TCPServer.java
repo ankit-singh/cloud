@@ -40,7 +40,7 @@ public class TCPServer {
 				while(true) { 
 					System.out.println("\n Now listening @ Port : " + listenSocket.getLocalPort());
 					Socket clientSocket = listenSocket.accept(); 
-					Connection c = new Connection(clientSocket); 
+					new ConnectionHandler(clientSocket); 
 				} 
 		} 
 		catch(IOException e) {

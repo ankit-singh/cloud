@@ -17,6 +17,8 @@ public interface IConstants {
 	public static final int PUSH =111;
 	public static final int PULL =112;
 	public static final int FILELIST=113;
+	public static final int OK =114;
+	public static final int NEW_SERVER = 115;
 	
 	
 	
