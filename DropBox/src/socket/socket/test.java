@@ -10,6 +10,8 @@ public class test {
 	public static void testClients(){
 		ClientHandler ch1 = new ClientHandler();
 		ch1.createNewUser();
+		ClientHandler ch2 = new ClientHandler();
+		ch2.authenticateUser();
 	}
 	public static void main(String[] args) {
 		System.out.println("test.main()"+IConstants.SERVER_SIZE);
