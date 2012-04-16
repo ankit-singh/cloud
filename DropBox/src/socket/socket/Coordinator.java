@@ -16,16 +16,16 @@ public class Coordinator {
 	  public static void main (String args[]) 
 	  { 
 		try{    
-				System.out.println("HEY");
+				Logger.Log("Coordinator.main() Coordinator Running");
 				ServerSocket listenSocket = new ServerSocket(IConstants.COOR_PORT); 
-				System.out.println("Co-ordinator is up and running @ IP: " + listenSocket.getInetAddress() + " / Port:" +listenSocket.getLocalPort() +"    ........");
+				Logger.Log("Coordinator.main() Co-ordinator is up and running @ IP: " + listenSocket.getInetAddress() + " / Port:" +listenSocket.getLocalPort() +"    ........");
 		  
-				System.out.println("Coordinator IP"+InetAddress.getLocalHost().getHostAddress());
+				Logger.Log("Coordinator.main() Coordinator IP"+InetAddress.getLocalHost().getHostAddress());
 				while(true) { 
 					System.out.println("Accepting new Servers\n");
 					Socket newServerConn = listenSocket.accept(); 
 					System.out.println("Accepting new Servers\n");
-					RequestHandler req = new RequestHandler(newServerConn); 
+					new RequestHandler(newServerConn); 
 				} 
 		} 
 		catch(IOException e) {

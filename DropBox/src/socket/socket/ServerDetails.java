@@ -7,11 +7,11 @@ package socket;
 public class ServerDetails {
 	
 	private String ip;
-	private String port;
-	public String getPort() {
+	private int port;
+	public int getPort() {
 		return port;
 	}
-	public void setPort(String port) {
+	public void setPort(int port) {
 		this.port = port;
 	}
 	public String getIp() {
@@ -29,7 +29,7 @@ public class ServerDetails {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((ip == null) ? 0 : ip.hashCode());
-		result = prime * result + ((port == null) ? 0 : port.hashCode());
+		result = prime * result + port;
 		return result;
 	}
 	@Override
@@ -46,12 +46,22 @@ public class ServerDetails {
 				return false;
 		} else if (!ip.equals(other.ip))
 			return false;
-		if (port == null) {
-			if (other.port != null)
-				return false;
-		} else if (!port.equals(other.port))
+		if (port != other.port)
 			return false;
 		return true;
+	}
+	
+	public static ServerDetails creat(String ip,int port){
+		ServerDetails serverDetails = new ServerDetails();
+		serverDetails.setIp(ip);
+		serverDetails.setPort(port);
+		return serverDetails;
+	}
+	public static ServerDetails coOrdinator(){
+		ServerDetails serverDetails = new ServerDetails();
+		serverDetails.setIp(IConstants.COORD_IP);
+		serverDetails.setPort(IConstants.COOR_PORT);
+		return serverDetails;
 	}
 	
 	

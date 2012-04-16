@@ -19,7 +19,7 @@ public class ClientDetails  {
 	public void setPassWord(String passWord) {
 		this.passWord = passWord;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

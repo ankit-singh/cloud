@@ -1,136 +1,138 @@
 package socket;
 
+import java.awt.color.CMMException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
 
 
-public class RequestHandler extends Thread {
-	DataInputStream input; 
-	DataOutputStream output; 
+
+public class RequestHandler extends Thread implements IConstants{
+
+	DataInputStream requestStream; 
+	DataOutputStream responseStream; 
 	Socket clientSocket; 
+	String clientName;
 	public RequestHandler (Socket aClientSocket) { 
 		try { 
-					clientSocket = aClientSocket; 
-					input = new DataInputStream( clientSocket.getInputStream()); 
-					output = new DataOutputStream( clientSocket.getOutputStream()); 
-					this.start(); 
+			clientSocket = aClientSocket; 
+			requestStream = new DataInputStream( clientSocket.getInputStream()); 
+			responseStream = new DataOutputStream( clientSocket.getOutputStream()); 
+			this.start(); 
 		} 
-			catch(IOException e) {
+		catch(IOException e) {
 			System.out.println("Connection:"+e.getMessage());
-			} 
-	  } 
+		} 
+	}
+	@Override
+	public void run() {
 
-	 public void run() { 
-			try { 					   
-				  //Step 1 read length
-				  int nb = input.readInt();
-				  System.out.println("Read Length"+ nb);
-				  byte[] digit = new byte[nb];
-			      System.out.println("Reached Request Handler! Request is as follows: \n");
 
-				  for(int i = 0; i < nb; i++)
-					digit[i] = input.readByte(); 
-				   
-				   String st = new String(digit);
-				   
-				   System.out.println(st); // Printing Request
-				   
-				   String packet [];
-				   packet = st.split(IConstants.DELIMITER);
-				   System.out.println(packet[0]);
-				//   System.out.println(file[0].length());
-				   System.out.println("Split happened");
-	
-				   //int j = data.length()/2;
-				   //while(data.length()/2 >0)
-					 //  data.length()
-				   if(packet[0].equals("Register"))
-				   {
-						SessionManager sessMgr = SessionManager.getInstance();
-						String IP = packet[1];
-						String Port = packet[2];
-						String sDet = packet[3];
-						System.out.println("Inside IF");
-						if(sessMgr.getServerMap(IP+IConstants.DELIMITER+Port)==null)
-						{
-							
-							sessMgr.setServerMap(IP+IConstants.DELIMITER+Port, sDet);
-							System.out.println("/n Controller registered Server IP: " + IP +" @ Port: " +Port);
-							System.out.println("/nServer space available for write: " +sessMgr.getServerMap(IP+IConstants.DELIMITER+Port)+" bytes");
-						}
-						else
-						{
-							if(sessMgr.getServerMap(IP+Port)!=null)
-							{
-								System.out.println("Server is already Registered on Controller!");
-							}
-							else
-							{
-								System.out.println("Registration unsuccessful");
-							}
+	}
+	private String handleDownloadRequest(String request){
+		String response = null;
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String clientName = arr[1];
+			//get file list
+			ArrayList<FileDetails> fileList = CoordinatorManager.getInstance().getClientFileTable().getFileList(clientName);
+			//file doesnt exits then , no down load
+			if(fileList == null){
 				
-						}
-						
-				   }else if(packet[0].equals("NEWUSER")){
-					   if(SessionManager.getInstance().userNameExists(packet[1])){
-						   //TODO User name already taken
-						   System.out.println("User name already exists");
-					   }else{
-						   	String uName = packet[1];
-						   	String pwd = packet[2];
-						   	SessionManager.getInstance().addUserDetails(uName, pwd);
-						   	System.out.println("New User Added ->UserName : "+uName);
-						   	System.out.println("New User Added ->Pasword : "+uName);
-						   	String reply = SessionManager.getInstance().getPotentialServer();
-						   	String s = new String();
-						   	if(reply!= null){
-						   		 s ="serverip__"+reply;
-						   	}else{
-						   		s ="fail";
-						   	}
-						   	System.out.println("RequestHandler.run() Sending reply:"+s);
-						   	output.writeInt(s.length());
-						   	output.writeBytes(s);
-						   	
-					   }
-					   
-				   }
-//				   
-//				   if(packet[1].equals("Y"))
-//				   {
-//					   
-//				   }
-//					   
-//				   System.out.println ("receive from : " + 
-//							clientSocket.getInetAddress() + ":" +
-//							clientSocket.getPort() + " message - " + st);   
-//				   FileWriter out = new FileWriter("C:\\Users\\dallasdias\\workspace\\DropBox\\Server2\\" + file[0]+ ".txt");
-//				   BufferedWriter bufWriter = new BufferedWriter(out);
-//				   bufWriter.append(file[1]);
-//				   bufWriter.close();
-//					
-//					
-//				
-//				  //Step 1 send length
-//				  output.writeInt(st.length());
-//				  //Step 2 send length
-//				  output.writeBytes(file[1]); // UTF is a string encoding
-//			  //  output.writeUTF(data); 
-				} 
-				catch(EOFException e) {
-				System.out.println("EOF:"+e.getMessage()); } 
-				catch(IOException e) {
-				System.out.println("IO:"+e.getMessage());}  
-	   
-				finally { 
-				  try { 
-					  clientSocket.close();
-				  }
-				  catch (IOException e){/*close failed*/}
+			}
+			else if(fileList.size() >0){	
+				//for every file in fileList get the server address
+				response = String.valueOf(FILELIST);
+				for(FileDetails fd : fileList){
+					response+=DELIMITER+fd.getClientName()+DELIMITER+fd.getFileName();
 				}
-	 }
+				
+			}
+			
+		}catch (ArrayIndexOutOfBoundsException e) {
+			Logger.Log("RequestHandler.handleDownloadRequest() Something is wrong in the request :"+request);
+		}
+		return response;
+	}
+	private String handleUploadRequest(String request){
+		String response = null;
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String clientName = arr[1];
+			String fileName = arr[2];
+			Long fileSize = Long.valueOf(arr[3]);
+			ServerTable serverTable = CoordinatorManager.getInstance().getServerTable();
+			ServerDetails potentialServer = serverTable.getPotentialServer(fileSize);
+			if(potentialServer != null){
+				//Get the potential server
+				//Update the server size
+				//store in file server table
+				//TODO Version matching??
+				response = String.valueOf(SERVER)+potentialServer.toString();
+				Long newSize = serverTable.getServerSpace(potentialServer) - fileSize;
+				serverTable.addServer(potentialServer, newSize);
+				FileServerTable fsTable = CoordinatorManager.getInstance().getFileServerTable();
+				FileDetails fileDetails = new FileDetails();
+				fileDetails.setClientName(clientName);
+				fileDetails.setFileName(fileName);
+				//FIXME get the version no
+				fileDetails.setVersion(0);
+				fsTable.addFileDetails(fileDetails, potentialServer);
+				//Add the file to client file table
+				CoordinatorManager.getInstance().getClientFileTable().addFile(clientName, fileDetails);
+			}else{
+				response = String.valueOf(NO_SPACE);
+			}
+			
+		}catch (ArrayIndexOutOfBoundsException e) {
+			Logger.Log("RequestHandler.handleUploadRequest() Something is wrong in the request :"+request);
+		}
+		return response;
+	}
+	private void handleNewServer(String request){
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String ip = arr[1];
+			int port  = Integer.parseInt(arr[2]);
+//			Long size = Long.parseLong(arr[3]);
+			//Using fixed server size for now
+			Long size = IConstants.SERVER_SIZE;
+			ServerTable stable = CoordinatorManager.getInstance().getServerTable();
+			stable.addServer(ServerDetails.creat(ip, port),size);
+		}catch (ArrayIndexOutOfBoundsException e) {
+			Logger.Log("RequestHandler.handleNewServer() Something is wrong in the request :"+request);
+		}
+	}
+	public String handleNewUserRequest(String request){
+		String response = null;
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String uname = arr[1];
+			String pwd = arr[2];
+			CoordinatorManager cm = CoordinatorManager.getInstance();
+			if(cm.getPwd(uname) == null){
+				cm.addUser(uname, pwd);
+				response =String.valueOf(USER_CREATED);
+			}else{
+				response =String.valueOf(USER_EXISTS);
+			}
+		}catch (ArrayIndexOutOfBoundsException e) {
+			Logger.Log("RequestHandler.handleNewClient() Something is wrong in the request :"+request);
+		}
+		return response;
 
+	}
+
+	public boolean isValidRequest(String request){
+		if(request != null && !request.trim().equals("")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 }

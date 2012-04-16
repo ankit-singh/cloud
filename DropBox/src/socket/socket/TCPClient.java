@@ -1,14 +1,14 @@
 package socket;
 
-import java.net.*; 
-import java.util.Scanner;
-import java.io.*; 
-import java.lang.Object;
-import org.apache.commons.io.FileUtils;
-
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.net.Socket;
+import java.util.Scanner;
+
+import org.apache.commons.io.FileUtils;
 
 public class TCPClient{ 
 	public static void main (String args[])  throws IOException
@@ -92,10 +92,10 @@ public class TCPClient{
 		}
 	//	catch (UnknownHostException e){ 
 		//	System.out.println("Sock:"+e.getMessage());}
-		catch (EOFException e){
-			System.out.println("EOF:"+e.getMessage()); }
-		catch (IOException e){
-			System.out.println("IO:"+e.getMessage());} 
+//		catch (EOFException e){
+//			System.out.println("EOF:"+e.getMessage()); }
+//		catch (IOException e){
+//			System.out.println("IO:"+e.getMessage());} 
 		finally {
 			  if(s!=null) 
 				  try {s.close();
@@ -131,7 +131,7 @@ public class TCPClient{
 		        spush = new Socket(ServerIP, Integer.parseInt(Port)); 
 		        DataInputStream input = new DataInputStream( spush.getInputStream()); 
 		        DataOutputStream output = new DataOutputStream( spush.getOutputStream()); 
-  	  
+  	  `
 		        System.out.println("Client now sending to Server");
      
 		        //Step 1 send length
@@ -153,5 +153,8 @@ public class TCPClient{
 					  } 
 					  catch (IOException e) {/*close failed*/}
 			}
+	}
+	public static void pullFromServer(){
+		
 	}
 }
