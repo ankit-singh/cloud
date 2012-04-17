@@ -12,7 +12,6 @@ import java.io.*;
 
 public class Coordinator {
 
-
 	  public static void main (String args[]) 
 	  { 
 		try{    

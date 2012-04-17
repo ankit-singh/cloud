@@ -87,7 +87,7 @@ public class ClientHandler implements IConstants{
 						int opcode = Integer.parseInt(arr[0]);
 						if(opcode == SERVER){
 							ServerDetails dest = ServerDetails.creat(arr[1],Integer.parseInt(arr[2]));
-							FileUploader.pushFile(file, dest);
+							FileUploader.pushFile(file, dest,view.getClientName());
 						}else if(opcode == NO_SPACE){
 							Logger.Log("ClientHandler.upload() File could not be uploaded : "+file.getName());
 
@@ -109,14 +109,17 @@ public class ClientHandler implements IConstants{
 			//retreive the file list
 			if(opcode == FILELIST){
 				Hashtable<String, ServerDetails> fileList = new Hashtable<String, ServerDetails>();
-				for(int i=2;i< arr.length-3; i =i+3){
+				for(int i=1;i< arr.length; i =i+3){
+					System.out.println("ClientHandler.download() i:"+i+"  value: "+arr[i]);
+					System.out.println("ClientHandler.download() i+1:"+(i+1)+"  value: "+arr[i+1]);
+					System.out.println("ClientHandler.download() i+2:"+(i+2)+"  value: "+arr[i+2]);
 					fileList.put(arr[i],ServerDetails.creat(arr[i+1], Integer.parseInt(arr[i+2])));
 				}
 				//pull the files
 				Enumeration<String> files = fileList.keys();
 				while(files.hasMoreElements()){
 					String file = files.nextElement();
-//					FileUploader.pullFile(file, fileList.get(file));
+						FileDownloader.pullFile(file, fileList.get(file),view.getDirectoryPath());
 				}
 			}
 		}

@@ -111,7 +111,7 @@ public class RequestHandler extends Thread implements IConstants{
 				response = String.valueOf(FILELIST);
 				for(FileDetails fd : fileList){
 					try {
-						response+=DELIMITER+fd.getClientName()+DELIMITER+fd.getFileName()+CoordinatorManager.getInstance().getFileServerTable().getServerDetails(fd).toString();
+						response+=DELIMITER+fd.getClientName()+"_"+fd.getFileName()+DELIMITER+CoordinatorManager.getInstance().getFileServerTable().getServerDetails(fd).toString();
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -165,9 +165,9 @@ public class RequestHandler extends Thread implements IConstants{
 		try{
 			String ip = arr[1];
 			int port  = Integer.parseInt(arr[2]);
-//			Long size = Long.parseLong(arr[3]);
+			Long size = Long.parseLong(arr[3]);
 			//Using fixed server size for now
-			Long size = IConstants.SERVER_SIZE;
+//			Long size = IConstants.SERVER_SIZE;
 			ServerTable stable = CoordinatorManager.getInstance().getServerTable();
 			stable.addServer(ServerDetails.creat(ip, port),size);
 		}catch (ArrayIndexOutOfBoundsException e) {

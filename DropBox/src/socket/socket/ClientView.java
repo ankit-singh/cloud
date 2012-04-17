@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 public class ClientView {
 	Scanner scan;
+	String dir = null;
+	String cname = null;
+	String pwd = null;
 	public ClientView(){
 		creatUI();
 	}
@@ -14,19 +17,26 @@ public class ClientView {
 		 scan = new Scanner(System.in);
 	}
 	public String getClientName() {
-		System.out.println("ClientView.getClientName()");
-		String user = scan.next();
-		return user;
+		if (cname == null) {
+			System.out.println("ClientView.getClientName()");
+			cname = scan.next();
+		}
+		return cname;
 	}
 	public String getPassword() {
-		System.out.println("ClientView.getPassword()");
-			String pwd = scan.next();
+		if (pwd == null) {
+			System.out.println("ClientView.getPassword()");
+			pwd = scan.next();
+		}
 			return pwd;
 	}
 	public String getDirectoryPath() {
+		if(dir == null)
+			{
 		System.out.println("ClientView.getDirectoryPath()");
-		String dp = scan.next();
-		return dp;
+		 dir = scan.next();
+		}
+		return dir;
 	}
 	public void destrutUI(){
 		scan.close();

@@ -12,8 +12,13 @@ public class test {
 		ch1.createNewUser();
 		ClientHandler ch2 = new ClientHandler();
 		ch2.authenticateUser();
+		ch1.download();
 	}
 	public static void main(String[] args) {
+		String fileName = "sdafu;ghlfbalfvalv;acdvkvavvavasvaV_fi_le_name_";
+		int uname = fileName.split("_")[0].length();
+		String arr = fileName.substring(uname+1,fileName.length());
+		System.out.println("test.main()"+arr);
 		System.out.println("test.main()"+IConstants.SERVER_SIZE);
 		testClients();
 		//		ClientHandler ch = new ClientHandler();
