@@ -51,7 +51,7 @@ public class TCPClient{
 //					System.out.print("\nCreate Folder Path?: ");
 //					filePath = scan.next();
 		        	
-		        	String packet = IConstants.NEW_CLIENT+IConstants.DELIMITER+user+IConstants.DELIMITER+pwd;
+		        	String packet = IConstants.AUTHENTICATE+IConstants.DELIMITER+user+IConstants.DELIMITER+pwd;
 			        output.writeInt(packet.length());
 			        output.writeBytes(packet);
 			        System.out.println("Registration Packet Sent! Waiting for co-ordinator to reply with available servers");
@@ -131,7 +131,7 @@ public class TCPClient{
 		        spush = new Socket(ServerIP, Integer.parseInt(Port)); 
 		        DataInputStream input = new DataInputStream( spush.getInputStream()); 
 		        DataOutputStream output = new DataOutputStream( spush.getOutputStream()); 
-  	  `
+  	  
 		        System.out.println("Client now sending to Server");
      
 		        //Step 1 send length

@@ -11,7 +11,11 @@ public class ClientHandler implements IConstants{
 
 	private static final ServerDetails co = ServerDetails.coOrdinator();
 
-	private ClientView view = new ClientView();
+	private ClientView view;
+	public ClientHandler(){
+		view = new ClientView(this);
+		view.open();
+	}
 	
 	public void createNewUser(){
 		client = getClientDetails();
@@ -22,7 +26,7 @@ public class ClientHandler implements IConstants{
 			String[] arr = response.split(DELIMITER);
 			int opcode = Integer.parseInt(arr[0]);
 			if(opcode == USER_EXISTS){
-				createNewUser();
+				System.out.println("ClientHandler.createNewUser()");
 			}
 			else if(opcode == USER_CREATED){
 				upload();
@@ -51,7 +55,7 @@ public class ClientHandler implements IConstants{
 			}
 			else if(opcode == INVALID_PWD){
 				Logger.Log("ClientHandler.authenticateUser() Reenter password");
-				authenticateUser();
+//				authenticateUser();
 			}
 		}
 	}
@@ -123,6 +127,9 @@ public class ClientHandler implements IConstants{
 				}
 			}
 		}
+	}
+	public static void main(String[] args){
+		new ClientHandler();
 	}
 }
 
