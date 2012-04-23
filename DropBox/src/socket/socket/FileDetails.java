@@ -1,8 +1,17 @@
 package socket;
 
 public class FileDetails {
+	/**
+	 * The absolute path name of the file 
+	 */
 	private String fileName;
+	/**
+	 * The client name
+	 */
 	private String clientName;
+	/**
+	 * The version number of the file
+	 */
 	private int version;
 	public String getFileName() {
 		return fileName;

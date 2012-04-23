@@ -125,6 +125,10 @@ public class RequestHandler extends Thread implements IConstants{
 		}
 		return response;
 	}
+	private boolean isNewVersion(String clientName,String fileName, int newVersionNumber){
+		
+		return false;
+	}
 	private String handleUploadRequest(String request){
 		String response = null;
 		String[] arr = request.split(IConstants.DELIMITER);
@@ -132,27 +136,43 @@ public class RequestHandler extends Thread implements IConstants{
 			String clientName = arr[1];
 			String fileName = arr[2];
 			Long fileSize = Long.valueOf(arr[3]);
-			ServerTable serverTable = CoordinatorManager.getInstance().getServerTable();
-			ServerDetails potentialServer = serverTable.getPotentialServer(fileSize);
-			if(potentialServer != null){
-				//Get the potential server
-				//Update the server size
-				//store in file server table
-				//TODO Version matching??
-				response = String.valueOf(SERVER)+DELIMITER+potentialServer.toString();
-				Long newSize = serverTable.getServerSpace(potentialServer) - fileSize;
-				serverTable.addServer(potentialServer, newSize);
-				FileServerTable fsTable = CoordinatorManager.getInstance().getFileServerTable();
-				FileDetails fileDetails = new FileDetails();
-				fileDetails.setClientName(clientName);
-				fileDetails.setFileName(fileName);
-				//FIXME get the version no
-				fileDetails.setVersion(0);
-				fsTable.addFileDetails(fileDetails, potentialServer);
-				//Add the file to client file table
-				CoordinatorManager.getInstance().getClientFileTable().addFile(clientName, fileDetails);
+			int versionNumber = Integer.parseInt(arr[4]);
+			
+			if (isNewVersion(clientName, fileName, versionNumber)) {
+				
+				ServerTable serverTable = CoordinatorManager.getInstance()
+						.getServerTable();
+				ServerDetails potentialServer = serverTable
+						.getPotentialServer(fileSize);
+				if (potentialServer != null) {
+					//Get the potential server
+					//Update the server size
+					//store in file server table
+					//TODO Version matching??
+					response = String.valueOf(SERVER) + DELIMITER
+							+ potentialServer.toString();
+					Long newSize = serverTable.getServerSpace(potentialServer)
+							- fileSize;
+					serverTable.addServer(potentialServer, newSize);
+					FileServerTable fsTable = CoordinatorManager.getInstance()
+							.getFileServerTable();
+					FileDetails fileDetails = new FileDetails();
+					fileDetails.setClientName(clientName);
+					fileDetails.setFileName(fileName);
+					//FIXME get the version no
+					fileDetails.setVersion(versionNumber);
+					fsTable.addFileDetails(fileDetails, potentialServer);
+					
+					//Add the file to client file table
+					CoordinatorManager.getInstance().getClientFileTable()
+							.addFile(clientName, fileDetails);
+					//Add filename and version to FileVersionTable
+					CoordinatorManager.getInstance().getFileVersionTable().addFile(fileName, versionNumber);
+				} else {
+					response = String.valueOf(NO_SPACE);
+				}
 			}else{
-				response = String.valueOf(NO_SPACE);
+				//TODO version exists
 			}
 			
 		}catch (ArrayIndexOutOfBoundsException e) {
@@ -169,7 +189,7 @@ public class RequestHandler extends Thread implements IConstants{
 			//Using fixed server size for now
 //			Long size = IConstants.SERVER_SIZE;
 			ServerTable stable = CoordinatorManager.getInstance().getServerTable();
-			stable.addServer(ServerDetails.creat(ip, port),size);
+			stable.addServer(ServerDetails.create(ip, port),size);
 		}catch (ArrayIndexOutOfBoundsException e) {
 			Logger.Log("RequestHandler.handleNewServer() Something is wrong in the request :"+request);
 		}

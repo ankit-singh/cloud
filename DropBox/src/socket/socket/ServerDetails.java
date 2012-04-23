@@ -51,7 +51,7 @@ public class ServerDetails {
 		return true;
 	}
 	
-	public static ServerDetails creat(String ip,int port){
+	public static ServerDetails create(String ip,int port){
 		ServerDetails serverDetails = new ServerDetails();
 		serverDetails.setIp(ip);
 		serverDetails.setPort(port);

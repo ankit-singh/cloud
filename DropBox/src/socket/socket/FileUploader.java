@@ -10,8 +10,8 @@ public class FileUploader {
 	ClientDetails client;
 	final static int BUFFER_SIZE = 65536;
 
-	public static void pushFile(final File file , final ServerDetails dest,String uname){
-
+	public static boolean pushFile(final File file , final ServerDetails dest,String uname){
+		boolean pushSuccess = false;
 		try {
 			Socket socket = new Socket(dest.getIp(), dest.getPort());
 			FileInputStream fileInputStream = new FileInputStream(file);
@@ -37,8 +37,11 @@ public class FileUploader {
 				socket.close();
 				long endTime = System.currentTimeMillis();
 				System.out.println(readTotal + " bytes written in " + (endTime - startTime) + " ms.");
+				pushSuccess = true;
 			}
 		} catch (Exception e) {
 		}
+		return pushSuccess;
 	}
+	
 }

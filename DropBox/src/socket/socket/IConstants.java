@@ -19,13 +19,16 @@ public interface IConstants {
 	public static final int FILELIST=113;
 	public static final int OK =114;
 	public static final int NEW_SERVER = 115;
+	public static final int NO_ACTION = 116;
+	public static final int CONFLICT = 117;
+	
 	
 	
 	
 	
 	public static final String DELIMITER = "__";
 	
-	public static String COORD_IP ="192.168.2.2";
+	public static String COORD_IP ="192.168.2.3";
 	
 	public static final int COOR_PORT=5555;
 	
