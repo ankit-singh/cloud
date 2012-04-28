@@ -21,18 +21,25 @@ public interface IConstants {
 	public static final int NEW_SERVER = 115;
 	public static final int NO_ACTION = 116;
 	public static final int CONFLICT = 117;
-	
+	public static final int CHAIN = 118;
+	public static final int STABLE = 119;
+	public static final int PING = 120;
+	public static final int NEXT = 121;
 	
 	
 	
 	
 	public static final String DELIMITER = "__";
 	
-	public static String COORD_IP ="192.168.2.3";
+	public static String COORD_IP ="192.168.2.4";
 	
 	public static final int COOR_PORT=5555;
 	
-	public static final long SERVER_SIZE =Long.valueOf("10737418240");
+	public static final int SERVER_SIZE =2;
+	
+	public static final int CHAIN_SIZE = 3;
+	
+	public static String DIRSEP ="/";
 	
 	
 }

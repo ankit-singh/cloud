@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.client;
 
 
 import org.eclipse.swt.SWT;

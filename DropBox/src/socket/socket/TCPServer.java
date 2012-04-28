@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+import cornell.cloud.dropsomething.server.handler.ServerHandler;
+
 public class TCPServer {
 
 	
@@ -45,7 +47,7 @@ public class TCPServer {
 				while(true) { 
 					System.out.println("\n Now listening @ Port : " + listenSocket.getLocalPort());
 					Socket clientSocket = listenSocket.accept(); 
-					new ConnectionHandler(clientSocket,dir); 
+					new ServerHandler(clientSocket,dir); 
 				} 
 		} 
 		catch(IOException e) {

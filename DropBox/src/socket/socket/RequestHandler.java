@@ -7,6 +7,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import javax.swing.Icon;
+
+import cornell.cloud.dropsomething.co.model.ServerBlockTable;
+import cornell.cloud.dropsomething.co.model.ServerListTable;
+
 
 
 public class RequestHandler extends Thread implements IConstants{
@@ -15,11 +20,13 @@ public class RequestHandler extends Thread implements IConstants{
 	DataOutputStream respStream; 
 	Socket clientSocket; 
 	String clientName;
+	CoordinatorManager manager;
 	public RequestHandler (Socket aClientSocket) { 
 		try { 
 			clientSocket = aClientSocket; 
 			reqStream = new DataInputStream( clientSocket.getInputStream()); 
-			respStream = new DataOutputStream( clientSocket.getOutputStream()); 
+			respStream = new DataOutputStream( clientSocket.getOutputStream());
+			manager = CoordinatorManager.getInstance();
 			this.start(); 
 		} 
 		catch(IOException e) {
@@ -45,11 +52,13 @@ public class RequestHandler extends Thread implements IConstants{
 					}else if(opcode == IConstants.CREATE_NEW_USER){
 						respString = handleNewUserRequest(request);
 					}else if(opcode == IConstants.NEW_SERVER){
-						handleNewServer(request);
+						respString = handleNewServer(request);
 					}else if(opcode == IConstants.AUTHENTICATE){
 						respString = handleAuthentication(request);
 					}else if(opcode == IConstants.DOWNLOAD){
 						respString = handleDownloadRequest(request);
+					}else if(opcode == IConstants.STABLE){
+						handleStableRequest(request);
 					}
 					if(respString != null){
 						respStream.writeInt(respString.getBytes().length);
@@ -57,20 +66,41 @@ public class RequestHandler extends Thread implements IConstants{
 					}
 				}
 				catch (IOException e) {
-					// TODO Auto-generated catch block
+					System.out.println(e.getMessage());
 					e.printStackTrace();
 				}finally{
 					if(clientSocket != null){
 						try {
 							clientSocket.close();
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
+							System.out.println(e.getMessage());
 							e.printStackTrace();
 						}
 					}
 				}
 
 	}
+	
+	/**This method handles the STABLE messages from server after chaining or whenever it pleases them
+	 * @param request
+	 */
+	private void handleStableRequest(String request){
+		String[] arr = request.split(IConstants.DELIMITER);
+		try{
+			String chainId = arr[1];
+			String serverList = arr[2];
+//			manager.addChain(chainId, serverList);
+		}catch (ArrayIndexOutOfBoundsException e) {
+			// TODO: handle exception
+			System.out.println("RequestHandler.handleAuthentication() Error Request"+request);
+		}
+				
+		
+		
+	}
+	
+	
+	
 	private String handleAuthentication(String request) {
 		String response = null;
 		String[] arr = request.split(IConstants.DELIMITER);
@@ -95,104 +125,60 @@ public class RequestHandler extends Thread implements IConstants{
 				
 		return response;
 	}
+	//According to the new implementation download all the files from the server
 	private String handleDownloadRequest(String request){
-		String response = null;
-		String[] arr = request.split(IConstants.DELIMITER);
-		try{
-			String clientName = arr[1];
-			//get file list
-			ArrayList<FileDetails> fileList = CoordinatorManager.getInstance().getClientFileTable().getFileList(clientName);
-			//file doesnt exits then , no down load
-			if(fileList == null){
-				
-			}
-			else if(fileList.size() >0){	
-				//for every file in fileList get the server address
-				response = String.valueOf(FILELIST);
-				for(FileDetails fd : fileList){
-					try {
-						response+=DELIMITER+fd.getClientName()+"_"+fd.getFileName()+DELIMITER+CoordinatorManager.getInstance().getFileServerTable().getServerDetails(fd).toString();
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-			}
-			
-		}catch (ArrayIndexOutOfBoundsException e) {
-			Logger.Log("RequestHandler.handleDownloadRequest() Something is wrong in the request :"+request);
-		}
-		return response;
-	}
-	private boolean isNewVersion(String clientName,String fileName, int newVersionNumber){
-		
-		return false;
+		return handleUploadRequest(request);
 	}
 	private String handleUploadRequest(String request){
 		String response = null;
 		String[] arr = request.split(IConstants.DELIMITER);
 		try{
 			String clientName = arr[1];
-			String fileName = arr[2];
-			Long fileSize = Long.valueOf(arr[3]);
-			int versionNumber = Integer.parseInt(arr[4]);
-			
-			if (isNewVersion(clientName, fileName, versionNumber)) {
-				
-				ServerTable serverTable = CoordinatorManager.getInstance()
-						.getServerTable();
-				ServerDetails potentialServer = serverTable
-						.getPotentialServer(fileSize);
-				if (potentialServer != null) {
-					//Get the potential server
-					//Update the server size
-					//store in file server table
-					//TODO Version matching??
-					response = String.valueOf(SERVER) + DELIMITER
-							+ potentialServer.toString();
-					Long newSize = serverTable.getServerSpace(potentialServer)
-							- fileSize;
-					serverTable.addServer(potentialServer, newSize);
-					FileServerTable fsTable = CoordinatorManager.getInstance()
-							.getFileServerTable();
-					FileDetails fileDetails = new FileDetails();
-					fileDetails.setClientName(clientName);
-					fileDetails.setFileName(fileName);
-					//FIXME get the version no
-					fileDetails.setVersion(versionNumber);
-					fsTable.addFileDetails(fileDetails, potentialServer);
-					
-					//Add the file to client file table
-					CoordinatorManager.getInstance().getClientFileTable()
-							.addFile(clientName, fileDetails);
-					//Add filename and version to FileVersionTable
-					CoordinatorManager.getInstance().getFileVersionTable().addFile(fileName, versionNumber);
-				} else {
-					response = String.valueOf(NO_SPACE);
-				}
-			}else{
-				//TODO version exists
-			}
+			//TODO make sure the manager refresh the chain before giving it to client
+			//TODO make sure the client gets the 
+//			Servrli
+////			String serverlist = manager.getServerList(clientName);
+//			response = IConstants.SERVER+serverlist;
 			
 		}catch (ArrayIndexOutOfBoundsException e) {
 			Logger.Log("RequestHandler.handleUploadRequest() Something is wrong in the request :"+request);
 		}
 		return response;
 	}
-	private void handleNewServer(String request){
+	private static int id = 0;
+	private String generateNewChainId(){
+		return String.valueOf(id++);
+	}
+	/**This method will handle the registration of new servers
+	 * The server will still not be added to the pool till they send a stable message
+	 * @param request
+	 */
+	private String handleNewServer(String request){
 		String[] arr = request.split(IConstants.DELIMITER);
+		String response = null;
 		try{
 			String ip = arr[1];
 			int port  = Integer.parseInt(arr[2]);
-			Long size = Long.parseLong(arr[3]);
-			//Using fixed server size for now
-//			Long size = IConstants.SERVER_SIZE;
-			ServerTable stable = CoordinatorManager.getInstance().getServerTable();
-			stable.addServer(ServerDetails.create(ip, port),size);
+			//get a potenial chain from co , if null then create a new chain and store it back in
+			ServerListTable slTable = manager.getSlTable();
+			
+			String chainId = slTable.newServerChain();
+			if(chainId == null){
+				chainId = generateNewChainId();
+				ServerBlockTable  sbTable = manager.getSbTable();
+				slTable.addServerList(chainId, ip+IConstants.DELIMITER+port);
+				sbTable.addServer(chainId, IConstants.SERVER_SIZE);
+				//Create new chain add store it and just send ok to the server
+			}else{
+				String serverList = slTable.getServerList(chainId);
+				serverList += IConstants.DELIMITER+ip+IConstants.DELIMITER+port;
+				slTable.addServerList(chainId, serverList);
+			}
+			response = IConstants.CHAIN+IConstants.DELIMITER+chainId+IConstants.DELIMITER+slTable.getServerList(chainId);
 		}catch (ArrayIndexOutOfBoundsException e) {
 			Logger.Log("RequestHandler.handleNewServer() Something is wrong in the request :"+request);
 		}
+		return response;
 	}
 	public String handleNewUserRequest(String request){
 		String response = null;

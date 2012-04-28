@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.co;
 
 /**
  * Co-ordinator keeps track of -
@@ -9,6 +9,10 @@ package socket;
 
 import java.net.*; 
 import java.io.*; 
+
+import socket.IConstants;
+import socket.Logger;
+import socket.RequestHandler;
 
 public class Coordinator {
 

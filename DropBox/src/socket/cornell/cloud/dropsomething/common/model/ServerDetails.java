@@ -1,4 +1,7 @@
-package socket;
+package cornell.cloud.dropsomething.common.model;
+
+import socket.IConstants;
+import cornell.cloud.dropsomething.common.util.Utilities;
 
 /**
  * Captures the properties of the server such as available disk space, 
@@ -58,10 +61,7 @@ public class ServerDetails {
 		return serverDetails;
 	}
 	public static ServerDetails coOrdinator(){
-		ServerDetails serverDetails = new ServerDetails();
-		serverDetails.setIp(IConstants.COORD_IP);
-		serverDetails.setPort(IConstants.COOR_PORT);
-		return serverDetails;
+		return Utilities.getCoordinator();
 	}
 	
 	
