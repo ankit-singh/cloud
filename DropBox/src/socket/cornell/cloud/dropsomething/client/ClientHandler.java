@@ -52,6 +52,7 @@ public class ClientHandler implements IConstants{
 		ClientDetails client = new ClientDetails();
 		client.setUserName(userName);
 		client.setPassWord(pwd);
+		rootDir = view.getDirectoryPath();
 		return client;
 	}
 	public void authenticateUser(){
@@ -72,22 +73,37 @@ public class ClientHandler implements IConstants{
 			}
 		}
 	}
-	private void updloadDir(String dirPath,ServerDetails dest){
-		Logger.Log("ClientHandler.upload() Directory Path :"+dirPath);
+	private void uploadDir(String dirPath,ServerDetails dest){
+		Logger.Log("Starting upload for DIR:"+dirPath);
+		File folder = new File(dirPath);
+		File[] fileList = folder.listFiles();
+		for (int j = 0; j < fileList.length; j++) {
+			File file = fileList[j];
+			if (file.isFile() && !file.isHidden()) {
+				String absPath = file.getAbsolutePath();
+				String filePath = absPath.substring(
+						rootDir.length(), absPath.length());
+				//Now Let file uploader do the magic
+				FileUploader.pushFile(rootDir, filePath,
+						client.getUserName(), dest);
+			} else if (file.isDirectory()) {
+				uploadDir(file.getAbsolutePath(), dest);
+			}
+		}
+	}
+	private void uploadDir(String dirPath,ArrayList<ServerDetails> destList){
 		try{
-			File folder = new File(dirPath);
-			File[] fileList = folder.listFiles();
-			Logger.Log("ClientHandler.upload() No of Files"+fileList.length);
-			for (int j = 0; j < fileList.length; j++) {
-				File file =  fileList[j];
-				if (file.isFile() && !file.isHidden()) {
-					String absPath  =	file.getAbsolutePath();
-					String filePath = absPath.substring(dirPath.length()-1,absPath.length());
-					//Now Let file uploader do the magic
-					FileUploader.pushFile(rootDir, filePath, client.getUserName(), dest);
-				}
-				else if(file.isDirectory()){
-					updloadDir(file.getAbsolutePath(), dest);
+			boolean isServerAlive = false;
+			for(int i= 0; i<destList.size();i++){
+				if(!isServerAlive){
+					ServerDetails dest = destList.get(i);
+					System.out.println("ClientHandler.uploadDir()");
+					String pingServer = MessageService.send(""+IConstants.PING, dest);
+					Logger.Log("Server :"+dest+" ALIVE :"+pingServer.equals(""+IConstants.OK));
+					if (pingServer.equals(""+IConstants.OK)) {
+						isServerAlive = true;
+						uploadDir(dirPath, dest);
+					}
 				}
 			}
 		}
@@ -98,28 +114,36 @@ public class ClientHandler implements IConstants{
 	/** gets the server details from the coordinator
 	 * @return<ServerDetails>
 	 */
-	public ServerDetails sendServerRequest(){
-		String serverRequest = IConstants.SERVER+client.getUserName();
+	public ArrayList<ServerDetails> sendServerRequest(){
+		//FIXME
+		String serverRequest = IConstants.DOWNLOAD+IConstants.DELIMITER+client.getUserName();
 		String message = MessageService.send(serverRequest, ServerDetails.coOrdinator());
+		ArrayList<ServerDetails> serverList = new ArrayList<ServerDetails>();
 		if (Utilities.isValidMessage(message)) {
 			ArrayList<String> responseFromCO = Utilities.getMessage(message);
-			if (responseFromCO.get(0).equals(IConstants.SERVER)) {
-				return ServerDetails.create(responseFromCO.get(1),
-						Integer.parseInt(responseFromCO.get(0)));
+			Logger.Log("Server Details Reponse :"+message);
+			Logger.Log("Server Details Reponse OPCODE:"+responseFromCO.get(0).equals(""+IConstants.SERVER));
+			if (responseFromCO.get(0).equals(""+IConstants.SERVER)) {
+				for(int i=1;i<responseFromCO.size() -1;i=i+2){
+					System.out.println("ClientHandler.sendServerRequest() ip :+"+responseFromCO.get(i));
+					System.out.println("ClientHandler.sendServerRequest() port :+"+responseFromCO.get(i+1));
+					serverList.add(ServerDetails.create(responseFromCO.get(i), Integer.parseInt(responseFromCO.get(i+1))));
+				}
 			}
 		}
-		return null;
+		return serverList;
 	}
 	/**
 	 * Uploads the file to server
 	 */
 	public void upload(){
-		ServerDetails dest = sendServerRequest();
-		if(dest == null){
+		ArrayList<ServerDetails> serverList = sendServerRequest();
+		System.out.println("ClientHandler.upload() ServerList :"+serverList);
+		if(serverList == null){
 			//TODO
 		}
 		else{
-			updloadDir(rootDir, dest);
+			uploadDir(rootDir, serverList);
 		}
 
 	}
@@ -127,28 +151,52 @@ public class ClientHandler implements IConstants{
 	 * Download the file from server
 	 */
 	public void download(){
-		ServerDetails dest = sendServerRequest();
-		if(dest == null){
+		ArrayList<ServerDetails> serverList = sendServerRequest();
+		if(serverList == null){
 			//TODO
 		}
 		else{
-			String fileListRequest = IConstants.FILELIST+client.getUserName();
-			String message = MessageService.send(fileListRequest, dest);
-			if(Utilities.isValidMessage(message)){
-				ArrayList<String> fileList = Utilities.getMessage(message);
-				if(fileList.get(0).equals( IConstants.FILELIST)){
-					for(int i=1 ; i <fileList.size() ; i=i+2){
-						String filePath = fileList.get(i);
-						String md5 = fileList.get(i+1);
-						FileDownloader.pullFIle(rootDir, filePath, md5, client.getUserName(), dest);
-					}
-				}
-			}
-
+			downloadDir(serverList);
 
 		}
 	}
+	private void downloadDir(ServerDetails dest){
+		String fileListRequest = IConstants.FILELIST+IConstants.DELIMITER+client.getUserName();
+		String message = MessageService.send(fileListRequest, dest);
+		if(Utilities.isValidMessage(message)){
+			ArrayList<String> fileList = Utilities.getMessage(message);
+			if(fileList.get(0).equals(""+IConstants.FILELIST)){
+				for(int i=1 ; i <fileList.size() ; i=i+2){
+					
+					String filePath = fileList.get(i);
+					String md5 = fileList.get(i+1);
+					FileDownloader.pullFIle(rootDir, filePath, md5, client.getUserName(), dest);
+				}
+			}
+		}
 
+	}
+	private void downloadDir(ArrayList<ServerDetails> destList){
+		try{
+			boolean isServerAlive = false;
+			for(int i= 0; i<destList.size();i++){
+				if(!isServerAlive){
+					ServerDetails dest = destList.get(i);
+					String pingServer = MessageService.send(""+IConstants.PING, dest);
+					if (pingServer.equals(""+IConstants.OK)) {
+						isServerAlive = true;
+						downloadDir(dest);
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	public static void main(String[] args){
+		new ClientHandler();
+	}
 
 }
 

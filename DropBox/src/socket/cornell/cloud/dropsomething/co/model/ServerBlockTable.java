@@ -14,23 +14,25 @@ public class ServerBlockTable {
 	
 	ConcurrentHashMap<String,String> sbTable = new ConcurrentHashMap<String, String>();
 	public ServerBlockTable() {
-		refresh();
+//		refresh();
 	}
 	public synchronized void addServer(String serverChainID,int blocks){
 		SimpleDBManager.getInstance().addRecord(SimpleDBManager.sbTable, serverChainID,String.valueOf(blocks));
 		sbTable.put(serverChainID, String.valueOf(blocks));
 		
 	}
-	private int getAvailableBlocks(String serverChainID){
+	public int getAvailableBlocks(String serverChainID){
 		return Integer.valueOf(sbTable.get(serverChainID));
 	}
 	public synchronized String getNextServer(){
-		refresh();
+		//FIX SIMPLE DB
+//		refresh();
 		int max = 0;
 		String returnVal = null;
 		Enumeration<String> serverlist = sbTable.keys();
 		while(serverlist.hasMoreElements()){
 			String server = serverlist.nextElement();
+			System.out.println("ServerBlockTable.getNextServer()****** "+sbTable.get(server));
 			int val = Integer.valueOf( sbTable.get(server));
 			if(max < val){
 				max = val;

@@ -61,7 +61,9 @@ public class ServerDetails {
 		return serverDetails;
 	}
 	public static ServerDetails coOrdinator(){
-		return Utilities.getCoordinator();
+//		return Utilities.getCoordinator();
+		return create(IConstants.COORD_IP, IConstants.COOR_PORT);
+//		FIXME
 	}
 	
 	

@@ -12,18 +12,21 @@ import java.util.ArrayList;
 
 import cornell.cloud.dropsomething.common.util.Utilities;
 
+import socket.FileDownloader;
+import socket.FileUploader;
 import socket.IConstants;
 import socket.Logger;
+import socket.MD5Checksum;
 
 public class ServerHandler extends Thread { 
 	DataInputStream reqStream; 
 	DataOutputStream respStream; 
 	Socket clientSocket; 
 	final static int BUFFER_SIZE = 65536;
-	String dir = "/users/ankitsingh/desktop/drop/sdef/";
+	String rootDir = "/users/ankitsingh/desktop/drop/sdef/";
 	public ServerHandler (Socket aClientSocket,String dir) { 
 		try { 
-			this.dir = dir;
+			this.rootDir = dir;
 			clientSocket = aClientSocket; 
 			reqStream = new DataInputStream( clientSocket.getInputStream()); 
 			respStream = new DataOutputStream( clientSocket.getOutputStream()); 
@@ -33,97 +36,72 @@ public class ServerHandler extends Thread {
 			System.out.println("Connection:"+e.getMessage());
 		} 
 	} 
-	private boolean fileExits(String filePath){
-		return false;//TODO
-	}
-	private boolean isSameFile(String filePath, String md5){
-		return false;
-	}
-	private File getFile(String filePath,String clieString){
-		new File(dir+"/"+clieString).mkdir();
-		File f = new File(filePath);
-		return f;
-		
-	}
+	
 	public void reciveFile(String request){
-		try {
-			String clientDir = request.split(IConstants.DELIMITER)[1];
-			String filePath = dir+"/"+clientDir+"/"+request.split(IConstants.DELIMITER)[2];
-			String md5 = request.split(IConstants.DELIMITER)[3];
-			if (!fileExits(filePath) && !isSameFile(filePath, md5)) {
-				long startTime = System.currentTimeMillis();
-				byte[] buffer = new byte[BUFFER_SIZE];
-				respStream.writeInt(IConstants.OK);
-				FileOutputStream fileStream = new FileOutputStream(getFile(
-						filePath, clientDir));
-				int read;
-				int totalRead = 0;
-				while ((read = reqStream.read(buffer)) != -1) {
-					fileStream.write(buffer, 0, read);
-					totalRead += read;
-				}
-				long endTime = System.currentTimeMillis();
-				System.out.println(totalRead + " bytes read in "
-						+ (endTime - startTime) + " ms.");
-				fileStream.close();
-			}
-		} catch (IOException e) {
-		}
-
+		ArrayList<String> requestList = Utilities.getMessage(request);
+		String filePath = "/"+requestList.get(1)+requestList.get(2);
+		FileDownloader.recieveFile(rootDir, filePath, requestList.get(3), requestList.get(1), clientSocket);
 	}
 	public String getMD5(String filePath){
-		return null;//TODO
-	}
-	public void sendFile(String request){
-		System.out.println("ConnectionHandler.sendFile()"+request);
+		System.out.println("File Path :"+filePath);
 		try {
-			String fileName = request.split(IConstants.DELIMITER)[1];
-			System.out.println("ConnectionHandler.sendFile() fileName :"+fileName);
-			FileInputStream fileInputStream = new FileInputStream(dir+"/"+fileName);
-			long startTime = System.currentTimeMillis();
-			byte[] buffer = new byte[BUFFER_SIZE];
-			int read;
-			int readTotal = 0;
-			while ((read = fileInputStream.read(buffer)) != -1) {
-				respStream.write(buffer, 0, read);
-				readTotal += read;
-				System.out
-				.println("UploadED BYTES :"+readTotal);
-			}
-			respStream.close();
-			fileInputStream.close();
-			long endTime = System.currentTimeMillis();
-			System.out.println(readTotal + " bytes written in " + (endTime - startTime) + " ms.");
-		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("ConnectionHandler.sendFile() Something went wrong :"+request);
-		} catch (FileNotFoundException e) {
-			System.out.println("ConnectionHandler.sendFile() FNE");
-			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("ConnectionHandler.sendFile() IO");
+			return MD5Checksum.getMD5Checksum(filePath);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return "";
+	}
+	public void sendFile(String request){
+		System.out.println("ServerHandler.sendFile()");
+		ArrayList<String> requestList = Utilities.getMessage(request);
+		String filePath = "/"+requestList.get(1)+requestList.get(2);
+		FileUploader.sendFile(rootDir, filePath, requestList.get(1), clientSocket);
+		
+	}
+	private String createFileList(String fileListString,String folderName,String clientName){
+		System.out.println("ServerHandler.createFileList() fileListString :"+fileListString);
+		File folder = new File(folderName);
+		Logger.Log("Client Foler :"+folder);
+		File[] fileList = folder.listFiles();
+		for (int j = 0; j < fileList.length; j++) {
+			System.out.println("ServerHandler.createFileList()File Name :"+fileList[j].getAbsolutePath());
+			if (fileList[j].isFile() && !fileList[j].isHidden()) {
+				File file = fileList[j];
+				//Send only the name as this the absolute path for the client
+				String md5 = getMD5(file.getAbsolutePath());
+				String filePath = file.getName();
+				String userDir = rootDir+"/"+clientName;
+				if(folder.equals(userDir)){
+				fileListString += IConstants.DELIMITER+filePath+IConstants.DELIMITER+md5;
+				System.out.println("ServerHandler.createFileList() fileListString :"+fileListString);
+				}
+				else{
+					String absPath = file.getAbsolutePath();
+					 filePath = absPath.substring(
+							 userDir.length(), absPath.length());
+					fileListString += IConstants.DELIMITER+filePath+IConstants.DELIMITER+md5;
+					System.out.println("ServerHandler.createFileList() fileListString :"+fileListString);
+					
+				}
+			}else if(fileList[j].isDirectory()){
+				fileListString +=createFileList(fileListString, fileList[j].getAbsolutePath(),clientName);
+				System.out.println("ServerHandler.createFileList() fileListString :"+fileListString);
+			}
+
+		}
+		return fileListString;
 	}
 	public void sendFileList(String request){
 		System.out.println("ConnectionHandler.sendFileList()"+request);
 		try {
 			ArrayList<String> response = Utilities.getMessage(request);
-			String clientName = response.get(0);
-			File folder = new File(dir+"/"+clientName);
-			File[] fileList = folder.listFiles();
-			Logger.Log("Send file No of Files"+fileList.length);
-			String fileListString = new String(IConstants.FILELIST+IConstants.DELIMITER);
-			for (int j = 0; j < fileList.length; j++) {
-				if (fileList[j].isFile() && !fileList[j].isHidden()) {
-					File file = fileList[j];
-					//Send only the name as this the absolute path for the client
-					String md5 = getMD5(file.getAbsolutePath());
-					String filePath = file.getName();
-					fileListString += filePath+IConstants.DELIMITER+md5;
-					
-				}
-
-			}
+			String clientName = response.get(1);
+			Logger.Log("Opening Client Folder :"+rootDir+"/"+clientName);
+			
+			String fileListString = new String();
+			fileListString = IConstants.FILELIST+createFileList(fileListString, rootDir+"/"+clientName,clientName);
 			respStream.writeInt(fileListString.getBytes().length);
 			respStream.writeBytes(fileListString);
 			respStream.close();
@@ -152,6 +130,8 @@ public class ServerHandler extends Thread {
 				reciveFile(request);
 			}else if(opcode == IConstants.PULL){
 				sendFile(request);
+			}else if(opcode == IConstants.FILELIST){
+				sendFileList(request);
 			}else if(opcode == IConstants.PING){
 				String reply =String.valueOf(IConstants.OK);
 				respStream.writeInt(reply.length());

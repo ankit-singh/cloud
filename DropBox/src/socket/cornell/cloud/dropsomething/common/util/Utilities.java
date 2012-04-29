@@ -33,6 +33,22 @@ public class Utilities {
 			return false;
 		}
 	}
+	public static String getFormattedDir(String dir){
+		dir = dir.trim();
+		char seperator = IConstants.DIRSEP;
+		if(!dir.equals("") && dir.charAt(dir.length() -1) == seperator){
+			dir = dir.substring(0, dir.length()-1);
+		}
+		return dir;
+	}
+	public static String getFormattedFilePath(String filePath){
+		filePath = filePath.trim();
+		char seperator = IConstants.DIRSEP;
+		if(!filePath.equals("")&&filePath.charAt(0) != seperator){
+			filePath = seperator+filePath;
+		}
+		return filePath;
+	}
 	public static ServerDetails getCoordinator(){
 		Random randomGen = new Random();
 		int rnd = randomGen.nextInt(coList.size()-1);

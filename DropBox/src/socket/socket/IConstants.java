@@ -35,11 +35,11 @@ public interface IConstants {
 	
 	public static final int COOR_PORT=5555;
 	
-	public static final int SERVER_SIZE =2;
+	public static final int SERVER_SIZE =10;
 	
 	public static final int CHAIN_SIZE = 3;
 	
-	public static String DIRSEP ="/";
+	public static char DIRSEP ='/';
 	
 	
 }

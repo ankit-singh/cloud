@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.util.Utilities;
 
 /**
  * @author ankitsingh
@@ -27,19 +28,18 @@ public class FileDownloader {
 	 * @param clientName
 	 * @param tcpSocket
 	 */
-	public static void pullFIle(String rootDir,String filePath,String md5,String clientName,Socket tcpSocket){
-
+	public static void recieveFile(String rootDir,String filePath,String md5,String clientName,Socket tcpSocket){
+		rootDir = Utilities.getFormattedDir(rootDir);
+		filePath = Utilities.getFormattedFilePath(filePath);
 		try {
 
+			DataOutputStream socketOutputStream = new DataOutputStream (tcpSocket.getOutputStream());
+			DataInputStream socketInputStream  = new DataInputStream ( tcpSocket.getInputStream());
 			File f = getFile(rootDir, filePath, md5);
 			if(f != null){
-				DataOutputStream socketOutputStream = new DataOutputStream (tcpSocket.getOutputStream());
-				DataInputStream socketInputStream  = new DataInputStream ( tcpSocket.getInputStream());
 				long startTime = System.currentTimeMillis();
-				String request =IConstants.PULL+IConstants.DELIMITER+clientName+IConstants.DELIMITER+filePath;
-				socketOutputStream.writeInt(request.getBytes().length);
-				socketOutputStream.write(request.getBytes());
-
+				System.out.println("FileDownloader.recieveFile() Sending OK");
+				socketOutputStream.writeInt(IConstants.OK);
 				byte[] buffer = new byte[BUFFER_SIZE];
 				FileOutputStream fileStream  = new FileOutputStream(f);
 				int read;
@@ -51,6 +51,8 @@ public class FileDownloader {
 				long endTime = System.currentTimeMillis();
 				fileStream.close();
 				System.out.println(totalRead + " bytes read in " + (endTime - startTime) + " ms.");
+			}else{
+				socketOutputStream.writeInt(IConstants.NO_ACTION);
 			}
 		} catch (IOException e) {
 			System.out.println("FileDownloader.pullFIle() "+e.getMessage());
@@ -59,7 +61,7 @@ public class FileDownloader {
 
 
 	}
-
+	
 	/**
 	 * @param rootDir
 	 * @param filePath
@@ -70,10 +72,39 @@ public class FileDownloader {
 	public static void pullFIle(String rootDir,String filePath,String md5,String clientName,ServerDetails dest){
 		Socket tcpSocket = null;
 		try {
-			tcpSocket = new Socket(dest.getIp(), dest.getPort());
-			pullFIle(rootDir, filePath, md5, clientName, tcpSocket);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println("FileDownloader.pullFIle()");
+			rootDir = Utilities.getFormattedDir(rootDir);
+			filePath = Utilities.getFormattedFilePath(filePath);
+			File f = getFile(rootDir, filePath, md5);
+			if (f != null) {
+				Logger.Log("Opening a socket for pull Server : " + dest.getIp());
+				Logger.Log("Opening a socket for pull Port : " + dest.getPort());
+				tcpSocket = new Socket(dest.getIp(), dest.getPort());
+				DataOutputStream socketOutputStream = new DataOutputStream(
+						tcpSocket.getOutputStream());
+				DataInputStream socketInputStream = new DataInputStream(
+						tcpSocket.getInputStream());
+				long startTime = System.currentTimeMillis();
+				String request = IConstants.PULL + IConstants.DELIMITER
+						+ clientName + IConstants.DELIMITER + filePath;
+				Logger.Log("Sending pull request :" + request);
+				socketOutputStream.writeInt(request.getBytes().length);
+				socketOutputStream.write(request.getBytes());
+				byte[] buffer = new byte[BUFFER_SIZE];
+				FileOutputStream fileStream = new FileOutputStream(f);
+				int read;
+				int totalRead = 0;
+				while ((read = socketInputStream.read(buffer)) != -1) {
+					fileStream.write(buffer, 0, read);
+					totalRead += read;
+				}
+				long endTime = System.currentTimeMillis();
+				fileStream.close();
+				System.out.println(totalRead + " bytes read in "
+						+ (endTime - startTime) + " ms.");
+			}else{
+				Logger.Log("File is upto date on the client");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -99,12 +130,17 @@ public class FileDownloader {
 		File file  = null;
 		if(fileExists(rootDir, filePath)){
 			if(!isSameFile(rootDir, filePath, md5)){
-				file = new File(rootDir+"/"+filePath);
+				file = new File(rootDir+filePath);
 			}
 		}else{
+			System.out.println("FileDownloader.getFile()");
 			String[] arr = filePath.split("/");
+			System.out.println("FileDownloader.getFile()");
 			String fileDir = filePath.substring(0,filePath.length() - arr[arr.length-1].length()-1);
-			new File(fileDir).mkdirs();
+			fileDir = Utilities.getFormattedDir(fileDir);
+			System.out.println("Creating directory :"+rootDir+fileDir);
+			new File(rootDir+fileDir).mkdirs();
+			System.out.println("Opening/Creating file :"+rootDir+filePath);
 			file = new File(rootDir+filePath);
 		}
 		return file;
@@ -116,7 +152,9 @@ public class FileDownloader {
 	 * 			else false
 	 */
 	private static boolean fileExists(String rootDir,String filePath){
-		return new File(rootDir+"/"+filePath).exists();
+		boolean fileExits = new File(rootDir+filePath).exists();
+		System.out.println("FileDownloader.fileExists() "+rootDir+filePath+" :"+fileExits);
+		return fileExits;
 
 	}
 	/**
@@ -126,17 +164,18 @@ public class FileDownloader {
 	 * @return True if the file is same the new file
 	 */
 	private static boolean isSameFile(String rootDir,String filePath, String md5){
+		boolean isSameFile = false;
 		try {
-			String oldmd5 = MD5Checksum.getMD5Checksum(rootDir+"/"+filePath);
+			String oldmd5 = MD5Checksum.getMD5Checksum(rootDir+filePath);
 			if(oldmd5.endsWith(md5)){
-				return true;
-			}else{
-				return false;
+				isSameFile = true;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			
 		}
+		Logger.Log("Is Same File:"+isSameFile);
+		return isSameFile;
 	}
 }
 

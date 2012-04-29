@@ -130,7 +130,7 @@ public class ClientView {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				 DirectoryDialog directoryDialog = new DirectoryDialog(shell);
-				 directoryDialog.setFilterPath("/users/ankitsingh/");
+				 directoryDialog.setFilterPath("/users/ankitsingh/desktop/drop");
 			        directoryDialog.setMessage("Please select a directory and click OK");
 			        String dir = directoryDialog.open();
 			        if(dir != null) {

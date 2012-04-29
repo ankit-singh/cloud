@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.Icon;
 
+import cornell.cloud.dropsomething.co.model.ClientServerTable;
 import cornell.cloud.dropsomething.co.model.ServerBlockTable;
 import cornell.cloud.dropsomething.co.model.ServerListTable;
 
@@ -45,6 +46,7 @@ public class RequestHandler extends Thread implements IConstants{
 					}
 					String respString = null;
 					String request = new String(digit);
+					System.out.println("RequestHandler.run() Request"+request);
 					int opcode = Integer.parseInt(request.split(IConstants.DELIMITER)[0]);
 					Logger.Log("RequestHandler.run() Opcode :"+opcode);
 					if(opcode == IConstants.UPLOAD){
@@ -61,6 +63,7 @@ public class RequestHandler extends Thread implements IConstants{
 						handleStableRequest(request);
 					}
 					if(respString != null){
+						System.out.println("RequestHandler.run() Response string :"+respString);
 						respStream.writeInt(respString.getBytes().length);
 						respStream.write(respString.getBytes());
 					}
@@ -134,11 +137,24 @@ public class RequestHandler extends Thread implements IConstants{
 		String[] arr = request.split(IConstants.DELIMITER);
 		try{
 			String clientName = arr[1];
-			//TODO make sure the manager refresh the chain before giving it to client
-			//TODO make sure the client gets the 
-//			Servrli
-////			String serverlist = manager.getServerList(clientName);
-//			response = IConstants.SERVER+serverlist;
+			ClientServerTable csTable = manager.getCsTable();
+			String chainId = csTable.getServer(clientName);
+			Logger.Log("Client Name :"+clientName);
+			Logger.Log("Chain Id :"+chainId);
+			if(chainId == null){
+				ServerBlockTable sbTable = manager.getSbTable();
+				chainId = sbTable.getNextServer();
+				if(chainId == null){
+					//NO Server Available //TODO
+					System.out.println("No Servers Available");
+				}else{
+					int oldBlockSize = sbTable.getAvailableBlocks(chainId);
+					sbTable.addServer(chainId, oldBlockSize-1);		
+				}
+			}
+			if(chainId != null){
+				response = IConstants.SERVER+IConstants.DELIMITER+manager.getSlTable().getServerList(chainId);
+			}
 			
 		}catch (ArrayIndexOutOfBoundsException e) {
 			Logger.Log("RequestHandler.handleUploadRequest() Something is wrong in the request :"+request);
@@ -146,6 +162,7 @@ public class RequestHandler extends Thread implements IConstants{
 		return response;
 	}
 	private static int id = 0;
+	
 	private String generateNewChainId(){
 		return String.valueOf(id++);
 	}
@@ -173,8 +190,8 @@ public class RequestHandler extends Thread implements IConstants{
 				String serverList = slTable.getServerList(chainId);
 				serverList += IConstants.DELIMITER+ip+IConstants.DELIMITER+port;
 				slTable.addServerList(chainId, serverList);
+				response = IConstants.CHAIN+IConstants.DELIMITER+chainId+IConstants.DELIMITER+slTable.getServerList(chainId);
 			}
-			response = IConstants.CHAIN+IConstants.DELIMITER+chainId+IConstants.DELIMITER+slTable.getServerList(chainId);
 		}catch (ArrayIndexOutOfBoundsException e) {
 			Logger.Log("RequestHandler.handleNewServer() Something is wrong in the request :"+request);
 		}

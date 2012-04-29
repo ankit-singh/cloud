@@ -24,6 +24,8 @@ public class MessageService {
 		try {
 			DataOutputStream requestStream = new DataOutputStream(tcpSocket.getOutputStream());
 			DataInputStream responsStream =  new DataInputStream(tcpSocket.getInputStream());
+			Logger.Log("Destination Server :"+tcpSocket.getInetAddress().getHostAddress());
+			Logger.Log("Destination Port :"+tcpSocket.getPort());
 			Logger.Log("TCPService.send() Request length :"+request.length());
 			requestStream.writeInt(request.length());
 			Logger.Log("TCPService.send() Request : "+request);
