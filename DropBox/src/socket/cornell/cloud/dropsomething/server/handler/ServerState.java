@@ -6,6 +6,12 @@ import cornell.cloud.dropsomething.common.model.ServerDetails;
 
 public class ServerState {
 
+	public  static final int STABLE = 101;
+	
+	public static final int INIT = 102;
+	
+	public static final int READ = 103;
+	public static final int WRITE = 104;
 	
 	private static int chainId = -1;
 	
