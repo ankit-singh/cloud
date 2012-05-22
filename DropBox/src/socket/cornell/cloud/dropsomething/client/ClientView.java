@@ -27,12 +27,12 @@ public class ClientView {
 	private Button existingRdBtn;
 	private Button newUserRdBtn;
 	String selectedDir;
-	
+
 	public ClientView(ClientHandler ch){
 		this.handler = ch;
 	}
 	public ClientView(){
-		
+
 	}
 	/**
 	 * Launch the application.
@@ -41,7 +41,7 @@ public class ClientView {
 	public static void main(String[] args) {
 		try {
 			ClientView window = new ClientView();
-			
+
 			window.open();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -57,7 +57,7 @@ public class ClientView {
 		shell.open();
 		shell.layout();
 		shell.setText("Drop Something!!");
-		
+
 		Button synchBtn = new Button(shell, SWT.NONE);
 		synchBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -85,14 +85,16 @@ public class ClientView {
 			}
 		}else if(newUserRdBtn.getSelection()){
 			System.out.println("ClientView.startSynch() New");
-			handler.createNewUser();
+			if(validateEntry()){
+				handler.createNewUser();
+			}
 		}else{
 			System.out.println("ClientView.createContents() Select one");
 		}
 	}
 	private boolean validateEntry(){
 		return getClientName() != null && getPassword() != null && getDirectoryPath() != null;
-				
+
 	}
 
 	/**
@@ -102,28 +104,28 @@ public class ClientView {
 		shell = new Shell();
 		shell.setSize(663, 300);
 		shell.setText("SWT Application");
-		
+
 		dirPathLbl = new Label(shell, SWT.BORDER);
 		dirPathLbl.setFont(SWTResourceManager.getFont("Consolas", 13, SWT.BOLD));
 		dirPathLbl.setBounds(24, 157, 512, 28);
 		dirPathLbl.setText("Please select a directory");
-		
+
 		Label lblNewLabel = new Label(shell, SWT.NONE);
 		lblNewLabel.setBounds(20, 13, 123, 28);
 		lblNewLabel.setText("User Name");
-		
+
 		uNameTxt = new Text(shell, SWT.BORDER);
 		uNameTxt.setBounds(149, 10, 196, 31);
-		
+
 		Label lblPassword = new Label(shell, SWT.NONE);
 		lblPassword.setBounds(20, 64, 82, 19);
 		lblPassword.setText("Password");
-		
+
 		pwdtext = new Text(shell, SWT.BORDER);
 		pwdtext.setBounds(149, 61, 193, 28);
-		
+
 		DragSource dragSource = new DragSource(shell, DND.DROP_MOVE);
-		
+
 		Button btnNewButton = new Button(shell, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 
@@ -143,14 +145,14 @@ public class ClientView {
 		});
 		btnNewButton.setBounds(542, 157, 94, 28);
 		btnNewButton.setText("Browse");
-		
+
 		group = new Group(shell, SWT.NONE);
 		group.setBounds(120, 95, 324, 43);
-		
+
 		existingRdBtn = new Button(group, SWT.RADIO);
 		existingRdBtn.setBounds(10, 10, 141, 18);
 		existingRdBtn.setText("Registered user");
-		
+
 		newUserRdBtn = new Button(group, SWT.RADIO);
 		newUserRdBtn.setBounds(168, 10, 91, 18);
 		newUserRdBtn.setText("New User");

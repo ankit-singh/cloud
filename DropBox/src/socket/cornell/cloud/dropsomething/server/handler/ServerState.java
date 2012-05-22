@@ -11,7 +11,9 @@ public class ServerState {
 	public static final int INIT = 102;
 	
 	public static final int READ = 103;
+	
 	public static final int WRITE = 104;
+	public static ServerDetails MYIP;
 	
 	private static int chainId = -1;
 	
@@ -44,6 +46,7 @@ public class ServerState {
 	public static ArrayList<ServerDetails> getServerList() {
 		return serverList;
 	}
+	
 
 	/**
 	 * @param serverList the serverList to set

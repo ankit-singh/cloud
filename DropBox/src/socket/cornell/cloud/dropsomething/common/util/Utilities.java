@@ -2,9 +2,11 @@ package cornell.cloud.dropsomething.common.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 import socket.IConstants;
+import socket.MessageService;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
 
 /**
@@ -13,6 +15,10 @@ import cornell.cloud.dropsomething.common.model.ServerDetails;
  */
 public class Utilities {
 	private static ArrayList<ServerDetails> coList = new ArrayList<ServerDetails>();
+	static{
+		coList.add(ServerDetails.create(IConstants.COORD_IP, 9876));
+		coList.add(ServerDetails.create(IConstants.COORD_IP, 8765));
+	}
 	/**
 	 * Extracts the messages from the message based on the delimiter
 	 * @param message
@@ -49,9 +55,26 @@ public class Utilities {
 		}
 		return filePath;
 	}
+	private  static boolean ping(ServerDetails dest) {
+		String pingServer = MessageService.send(""+ IConstants.PING,dest);
+		if (pingServer.equals("" + IConstants.OK)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	public static ServerDetails getCoordinator(){
-		Random randomGen = new Random();
-		int rnd = randomGen.nextInt(coList.size()-1);
-		return coList.get(rnd);
+		boolean alive = false;
+		Iterator<ServerDetails> itr = coList.iterator();
+		ServerDetails sd = coList.get(1);
+		while(!alive && itr.hasNext()){
+			 sd = itr.next();
+			if(ping(sd)){
+				alive = true;
+				break;
+			}
+		}
+		return sd;
+		
 	}
 }

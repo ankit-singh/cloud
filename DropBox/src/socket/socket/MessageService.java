@@ -2,14 +2,19 @@ package socket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import cornell.cloud.dropsomething.common.model.ServerDetails;
 
 public class MessageService {
-
+	final static int timeout = 4*1000;
 
 	/** 
 	 * Sends a request on the socket 
@@ -20,7 +25,7 @@ public class MessageService {
 	 * @return
 	 * 		Response
 	 */
-	public static String send(String request,Socket tcpSocket){
+	private static String send(String request,Socket tcpSocket){
 		try {
 			DataOutputStream requestStream = new DataOutputStream(tcpSocket.getOutputStream());
 			DataInputStream responsStream =  new DataInputStream(tcpSocket.getInputStream());
@@ -40,8 +45,15 @@ public class MessageService {
 			String resopnse = new String(digit);
 			Logger.Log("TCPService.send() Response :"+resopnse);
 			return resopnse.trim();
+		}catch(ConnectException ce){
+			System.out.println("The Coonection cannot be established , the server failed to respond!");
+			return "";
+		}
+		catch (EOFException e) {
+			System.out.println("MessageService.send() Response not recived");
+			return new String("");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("MessageService.send() IO EXCeption");
 			return new String("");
 		}
 	}
@@ -51,9 +63,19 @@ public class MessageService {
 		Socket tcpSocket = null;
 		String response = "";
 		try {
-			tcpSocket = new Socket(destination.getIp(), destination.getPort());
+			SocketAddress address = new InetSocketAddress(destination.getIp(),destination.getPort());
+			tcpSocket = new Socket();
+			tcpSocket.connect(address, timeout);
 			response = send(request, tcpSocket);
-		} catch (UnknownHostException e) {
+		}catch(ConnectException ce){
+			System.out.println("The Coonection cannot be established , the server failed to respond!");
+			return "";
+		}
+		catch(SocketTimeoutException ce){
+			System.out.println("The Coonection cannot be established , the server failed to respond!");
+			return "";
+		}
+		catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();

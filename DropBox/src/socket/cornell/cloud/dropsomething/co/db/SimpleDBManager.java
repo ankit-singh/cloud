@@ -29,6 +29,7 @@ public class SimpleDBManager {
 	public static final String csTable = "CLIENTSERVERTABLE";
 	public static final String slTable = "SERVERLISTTABLE";
 	public static final String sbTable = "SERVERBLOCKTABLE";
+	public static final String uTable = "USERTABLE";
 
 
 	/**
@@ -72,6 +73,8 @@ public class SimpleDBManager {
 					SimpleDBManager.slTable));
 			simpleDB.createDomain(new CreateDomainRequest(
 					SimpleDBManager.sbTable));
+			simpleDB.createDomain(new CreateDomainRequest(
+					SimpleDBManager.uTable));
 		} catch (AmazonClientException e) {
 			e.printStackTrace();
 		}
@@ -93,7 +96,7 @@ public class SimpleDBManager {
 		return replaceableAttribute.getAttributes().get(0).getValue();
 	}
 	public HashMap<String, String> getRecords(String tableName){     
-		String selectExpression = "select * from `" + csTable
+		String selectExpression = "select * from `" + tableName
 				+ "`";
 		SelectRequest selectRequest = new SelectRequest(selectExpression);
 		HashMap<String, String> table = new HashMap<String, String>();

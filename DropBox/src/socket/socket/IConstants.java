@@ -25,19 +25,23 @@ public interface IConstants {
 	public static final int STABLE = 119;
 	public static final int PING = 120;
 	public static final int NEXT = 121;
+	public static final int INIT = 122;
+	public static final int UPDATE = 123;
+	public static final int REPLICATE = 124;
+	public static final int DELETE = 125;
 	
 	
 	
 	
 	public static final String DELIMITER = "__";
 	
-	public static String COORD_IP ="192.168.2.4";
+	public static String COORD_IP ="128.84.18.219";
 	
-	public static final int COOR_PORT=5555;
+	public static final int COOR_PORT=5556;
 	
-	public static final int SERVER_SIZE =10;
+	public static final int SERVER_SIZE =2;
 	
-	public static final int CHAIN_SIZE = 3;
+	public static final int CHAIN_SIZE = 2;
 	
 	public static char DIRSEP ='/';
 	

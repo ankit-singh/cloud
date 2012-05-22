@@ -5,8 +5,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 
 import cornell.cloud.dropsomething.common.model.ServerDetails;
 import cornell.cloud.dropsomething.common.util.Utilities;
@@ -41,15 +44,21 @@ public class FileDownloader {
 				System.out.println("FileDownloader.recieveFile() Sending OK");
 				socketOutputStream.writeInt(IConstants.OK);
 				byte[] buffer = new byte[BUFFER_SIZE];
+				System.out.println("FileDownloader.recieveFile() Opeing fileStream");
 				FileOutputStream fileStream  = new FileOutputStream(f);
 				int read;
 				int totalRead = 0;
+				System.out.println("FileDownloader.recieveFile() Starting to download file");
 				while ((read = socketInputStream.read(buffer)) != -1) {
 					fileStream.write(buffer,0,read);
 					totalRead += read;
+					System.out.println("FileDownloader.recieveFile() Reading");
 				}
+				System.out.println("FileDownloader.recieveFile() Download Complete");
 				long endTime = System.currentTimeMillis();
+				System.out.println("FileDownloader.recieveFile() Closing fileStream");
 				fileStream.close();
+				System.out.println("FileDownloader.recieveFile() File Stream closed");
 				System.out.println(totalRead + " bytes read in " + (endTime - startTime) + " ms.");
 			}else{
 				socketOutputStream.writeInt(IConstants.NO_ACTION);
@@ -76,10 +85,12 @@ public class FileDownloader {
 			rootDir = Utilities.getFormattedDir(rootDir);
 			filePath = Utilities.getFormattedFilePath(filePath);
 			File f = getFile(rootDir, filePath, md5);
+			SocketAddress address = new InetSocketAddress(dest.getIp(),dest.getPort());
 			if (f != null) {
 				Logger.Log("Opening a socket for pull Server : " + dest.getIp());
 				Logger.Log("Opening a socket for pull Port : " + dest.getPort());
-				tcpSocket = new Socket(dest.getIp(), dest.getPort());
+				tcpSocket = new Socket();
+				tcpSocket.connect(address, 4000);
 				DataOutputStream socketOutputStream = new DataOutputStream(
 						tcpSocket.getOutputStream());
 				DataInputStream socketInputStream = new DataInputStream(
@@ -105,7 +116,12 @@ public class FileDownloader {
 			}else{
 				Logger.Log("File is upto date on the client");
 			}
-		} catch (IOException e) {
+		}catch(ConnectException ce){
+			System.out.println("FileDownloader.pullFIle() Connection Failed");
+		}catch(SocketTimeoutException sto){
+			System.out.println("FileDownloader.pullFIle() Socket Timed out");
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		finally{
@@ -133,9 +149,7 @@ public class FileDownloader {
 				file = new File(rootDir+filePath);
 			}
 		}else{
-			System.out.println("FileDownloader.getFile()");
 			String[] arr = filePath.split("/");
-			System.out.println("FileDownloader.getFile()");
 			String fileDir = filePath.substring(0,filePath.length() - arr[arr.length-1].length()-1);
 			fileDir = Utilities.getFormattedDir(fileDir);
 			System.out.println("Creating directory :"+rootDir+fileDir);

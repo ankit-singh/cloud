@@ -2,6 +2,7 @@ package socket;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import cornell.cloud.dropsomething.co.db.SimpleDBManager;
 import cornell.cloud.dropsomething.co.model.ClientServerTable;
 import cornell.cloud.dropsomething.co.model.ServerBlockTable;
 import cornell.cloud.dropsomething.co.model.ServerListTable;
@@ -17,10 +18,18 @@ public class CoordinatorManager {
 	
 	private ServerListTable slTable  = new ServerListTable();
 	
-	private  ConcurrentHashMap<String, String> userMap = new ConcurrentHashMap<String, String>();
+	private int port = 9756;
 	
+	private  ConcurrentHashMap<String, String> userMap = new ConcurrentHashMap<String, String>();
 	private CoordinatorManager() {
 		
+		
+	}
+	public void setPort(int port){
+		this.port = port;
+	}
+	public int getPOrt(){
+		return this.port;
 	}
 	public static CoordinatorManager getInstance(){
 		if(_instance == null){
@@ -28,10 +37,12 @@ public class CoordinatorManager {
 		}
 		return _instance;
 	}
-	public void addUser(String uname,String pwd){
+	public synchronized void addUser(String uname,String pwd){
 		userMap.put(uname, pwd);
+		SimpleDBManager.getInstance().addRecord(SimpleDBManager.uTable, uname, pwd);
 	}
-	public String getPwd(String uname){
+	public synchronized String getPwd(String uname){
+		userMap.putAll(SimpleDBManager.getInstance().getRecords(SimpleDBManager.uTable));
 		return userMap.get(uname);
 	}
 	/**

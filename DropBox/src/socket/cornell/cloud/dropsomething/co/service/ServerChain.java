@@ -2,8 +2,8 @@ package cornell.cloud.dropsomething.co.service;
 
 
 import socket.IConstants;
-import socket.ServerDetails;
 import socket.MessageService;
+import cornell.cloud.dropsomething.common.model.ServerDetails;
 
 
 public class ServerChain {

@@ -7,12 +7,16 @@ package cornell.cloud.dropsomething.co;
  * 3. Load balancing
  */
 
-import java.net.*; 
-import java.io.*; 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Scanner;
 
+import socket.COHandler;
+import socket.CoordinatorManager;
 import socket.IConstants;
 import socket.Logger;
-import socket.RequestHandler;
 
 public class Coordinator {
 
@@ -20,15 +24,18 @@ public class Coordinator {
 	  { 
 		try{    
 				Logger.Log("Coordinator.main() Coordinator Running");
-				ServerSocket listenSocket = new ServerSocket(IConstants.COOR_PORT); 
+				Scanner scan = new Scanner(System.in);
+				System.out.println("Coordinator.main() Port");
+				int port = scan.nextInt();
+				ServerSocket listenSocket = new ServerSocket(port); 
 				Logger.Log("Coordinator.main() Co-ordinator is up and running @ IP: " + listenSocket.getInetAddress() + " / Port:" +listenSocket.getLocalPort() +"    ........");
-		  
+				CoordinatorManager.getInstance().setPort(port);
 				Logger.Log("Coordinator.main() Coordinator IP"+InetAddress.getLocalHost().getHostAddress());
 				while(true) { 
 					System.out.println("Accepting new Servers\n");
 					Socket newServerConn = listenSocket.accept(); 
-					System.out.println("got request");
-					new  RequestHandler(newServerConn); 
+					System.out.println("got request on Port:"+port);
+					new  COHandler(newServerConn); 
 				} 
 		} 
 		catch(IOException e) {

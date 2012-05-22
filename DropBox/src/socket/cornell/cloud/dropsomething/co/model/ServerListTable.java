@@ -15,13 +15,25 @@ public class ServerListTable   {
 	
 	
 	public synchronized void addServerList(String serverChainId,String serverlist){
+		try{
+			if(serverChainId.equals("ankit"))
+			throw new Exception();
+		}catch(Exception e){
+			System.out.println("ServerListTable.addServerList() Bazinga");
+			e.printStackTrace();
+			System.out.println("ServerListTable.addServerList() Bazinga");
+			
+		}
 		serverListTable.put(serverChainId, serverlist);
+		SimpleDBManager.getInstance().addRecord(SimpleDBManager.slTable, serverChainId, serverlist);
 		printServerListTable();
 	}
 	public  synchronized String getServerList(String serverChainId){
+		simpleRefresh();
 		return serverListTable.get(serverChainId);
 	}
 	public String newServerChain(){
+		simpleRefresh();
 		Enumeration<String> chainIds = serverListTable.keys();
 		String chainId = null;
 		while(chainIds.hasMoreElements()){
@@ -49,6 +61,11 @@ public class ServerListTable   {
 	private int getSize(String listString){
 		int length = listString.trim().split(IConstants.DELIMITER).length;
 		return (length/2);
+	}
+	private void simpleRefresh(){
+		SimpleDBManager dbManager = SimpleDBManager.getInstance();
+		//Get the current table from the DB 
+		serverListTable.putAll(dbManager.getRecords(SimpleDBManager.slTable));
 	}
 	//Do not use refresh now
 	private void refresh(){
