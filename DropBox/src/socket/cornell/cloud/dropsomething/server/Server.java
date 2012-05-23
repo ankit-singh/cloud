@@ -1,8 +1,5 @@
-package socket;
+package cornell.cloud.dropsomething.server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -10,9 +7,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import javax.swing.Icon;
-
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.FileDownloader;
+import cornell.cloud.dropsomething.common.service.MessageService;
+import cornell.cloud.dropsomething.common.util.Logger;
 import cornell.cloud.dropsomething.common.util.Utilities;
 import cornell.cloud.dropsomething.server.handler.ServerHandler;
 import cornell.cloud.dropsomething.server.handler.ServerState;
@@ -26,9 +25,9 @@ public class Server {
 			System.out.print("Server to start on Port?: ");
 			String port = scan.next();
 			System.out
-					.println(" Enter Server Dir : /users/ankitsingh/desktop/drop/");
+					.println(" Enter Server Dir :");
 			rootDir = scan.next();
-			rootDir = "/users/ankitsingh/desktop/drop/"+rootDir;
+			rootDir = Utilities.getFormattedDir(rootDir);
 			Logger.Log("Contacting the Coordinator");
 			String packet = IConstants.NEW_SERVER + IConstants.DELIMITER
 					+ InetAddress.getLocalHost().getHostAddress().toString()

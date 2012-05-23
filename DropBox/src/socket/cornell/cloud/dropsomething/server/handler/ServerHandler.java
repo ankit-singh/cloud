@@ -3,27 +3,20 @@ package cornell.cloud.dropsomething.server.handler;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import com.sun.corba.se.spi.activation.Server;
-import com.sun.org.apache.bcel.internal.generic.ICONST;
-
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.FileDownloader;
+import cornell.cloud.dropsomething.common.service.FileUploader;
+import cornell.cloud.dropsomething.common.service.MessageService;
 import cornell.cloud.dropsomething.common.util.Jarvis;
+import cornell.cloud.dropsomething.common.util.Logger;
+import cornell.cloud.dropsomething.common.util.MD5Checksum;
 import cornell.cloud.dropsomething.common.util.Utilities;
-
-import socket.FileDownloader;
-import socket.FileUploader;
-import socket.IConstants;
-import socket.Logger;
-import socket.MD5Checksum;
-import socket.MessageService;
 
 public class ServerHandler extends Thread { 
 	DataInputStream reqStream; 

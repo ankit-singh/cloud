@@ -1,6 +1,6 @@
 package cornell.cloud.dropsomething.common.model;
 
-import socket.IConstants;
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.util.Utilities;
 
 /**

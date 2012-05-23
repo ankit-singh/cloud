@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.co;
 
 import java.util.concurrent.ConcurrentHashMap;
 

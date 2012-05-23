@@ -1,8 +1,14 @@
-package socket;
+package cornell.cloud.dropsomething.common.service;
 
 import java.io.File;
 
-public class FileDeleter {
+import cornell.cloud.dropsomething.common.IConstants;
+
+/**
+ * @author ankitsingh
+ *
+ */
+public class FileDeleter{
 
 	
 	

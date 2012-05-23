@@ -1,20 +1,20 @@
-package socket;
+package cornell.cloud.dropsomething.co.handler;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import javax.swing.Icon;
-
+import cornell.cloud.dropsomething.co.CoordinatorManager;
 import cornell.cloud.dropsomething.co.model.ClientServerTable;
 import cornell.cloud.dropsomething.co.model.ServerBlockTable;
 import cornell.cloud.dropsomething.co.model.ServerListTable;
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.MessageService;
+import cornell.cloud.dropsomething.common.util.Logger;
 import cornell.cloud.dropsomething.common.util.Utilities;
-import cornell.cloud.dropsomething.server.handler.ServerState;
 
 public class COHandler extends Thread implements IConstants {
 

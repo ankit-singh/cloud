@@ -3,11 +3,10 @@ package cornell.cloud.dropsomething.common.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Random;
 
-import socket.IConstants;
-import socket.MessageService;
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.MessageService;
 
 /**
  * @author ankitsingh

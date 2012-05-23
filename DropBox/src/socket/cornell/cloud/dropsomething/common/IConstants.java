@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.common;
 
 public interface IConstants {
 

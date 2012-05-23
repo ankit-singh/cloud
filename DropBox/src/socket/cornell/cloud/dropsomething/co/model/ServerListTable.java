@@ -3,10 +3,10 @@ package cornell.cloud.dropsomething.co.model;
 import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
-import socket.IConstants;
-import socket.MessageService;
 import cornell.cloud.dropsomething.co.db.SimpleDBManager;
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.MessageService;
 import cornell.cloud.dropsomething.common.util.Utilities;
 
 public class ServerListTable   {

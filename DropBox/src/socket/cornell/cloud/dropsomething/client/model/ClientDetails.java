@@ -1,4 +1,6 @@
-package socket;
+package cornell.cloud.dropsomething.client.model;
+
+import cornell.cloud.dropsomething.common.IConstants;
 
 public class ClientDetails  {
 	private String userName;

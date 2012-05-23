@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.common.util;
 
 import java.io.*;
 import java.util.*;

@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.common.service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -11,7 +11,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.util.Logger;
+import cornell.cloud.dropsomething.common.util.MD5Checksum;
 import cornell.cloud.dropsomething.common.util.Utilities;
 
 /**

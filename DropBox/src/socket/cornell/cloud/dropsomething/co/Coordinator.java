@@ -13,10 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
-import socket.COHandler;
-import socket.CoordinatorManager;
-import socket.IConstants;
-import socket.Logger;
+import cornell.cloud.dropsomething.co.handler.COHandler;
+import cornell.cloud.dropsomething.common.util.Logger;
 
 public class Coordinator {
 

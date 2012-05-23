@@ -1,4 +1,4 @@
-package socket;
+package cornell.cloud.dropsomething.common.service;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.util.Logger;
 
 public class MessageService {
 	final static int timeout = 4*1000;

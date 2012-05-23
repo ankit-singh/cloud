@@ -3,14 +3,13 @@ package cornell.cloud.dropsomething.client;
 import java.io.File;
 import java.util.ArrayList;
 
-import socket.ClientDetails;
-import socket.FileDownloader;
-import socket.FileUploader;
-import socket.FileVersionTable;
-import socket.IConstants;
-import socket.Logger;
-import socket.MessageService;
+import cornell.cloud.dropsomething.client.model.ClientDetails;
+import cornell.cloud.dropsomething.common.IConstants;
 import cornell.cloud.dropsomething.common.model.ServerDetails;
+import cornell.cloud.dropsomething.common.service.FileDownloader;
+import cornell.cloud.dropsomething.common.service.FileUploader;
+import cornell.cloud.dropsomething.common.service.MessageService;
+import cornell.cloud.dropsomething.common.util.Logger;
 import cornell.cloud.dropsomething.common.util.Utilities;
 
 public class ClientHandler implements IConstants {
@@ -18,7 +17,6 @@ public class ClientHandler implements IConstants {
 
 	private static final ServerDetails co = ServerDetails.coOrdinator();
 
-	private static FileVersionTable versionTable = new FileVersionTable();
 
 	private ClientView view;
 
